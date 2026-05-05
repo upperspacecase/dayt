@@ -1,58 +1,18 @@
 import Image from "next/image";
-
-type Card = {
-  title: string;
-  desc: string;
-  location: string;
-  price: string;
-  duration: string;
-  tags: string[];
-  image?: string;
-  gradient?: string;
-};
-
-const cards: Card[] = [
-  {
-    title: "Golden Hour Tram Ride",
-    desc: "A slow evening that turns strangers into co-conspirators.",
-    location: "Alfama",
-    price: "€38",
-    duration: "2 hours",
-    tags: ["sunset", "conversation", "iconic"],
-    gradient:
-      "linear-gradient(135deg, #d6a36a 0%, #a86b3c 45%, #4a2e1c 100%)",
-  },
-  {
-    title: "Wine Above the River",
-    desc: "A rooftop pause with the city glowing beneath you.",
-    location: "Graça",
-    price: "€44",
-    duration: "90 min",
-    tags: ["rooftop", "wine", "views"],
-    gradient:
-      "linear-gradient(135deg, #e0b67a 0%, #8a4a35 50%, #2b1a14 100%)",
-  },
-  {
-    title: "Ceramics & Vermouth",
-    desc: "Make something together before the night opens up.",
-    location: "Príncipe Real",
-    price: "€52",
-    duration: "2.5 hours",
-    tags: ["creative", "hands-on", "intimate"],
-    image: "/ceramics.png",
-  },
-];
+import Link from "next/link";
+import { dates, UNLOCK_PRICE } from "./dates";
 
 export default function Home() {
   return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
       <header className="px-8 sm:px-14 pt-8 sm:pt-10">
-        <div
-          className="text-3xl sm:text-4xl tracking-tight"
+        <Link
+          href="/"
+          className="inline-block text-3xl sm:text-4xl tracking-tight"
           style={{ fontFamily: "var(--font-serif)" }}
         >
           Dayt
-        </div>
+        </Link>
       </header>
 
       <main className="flex-1 flex flex-col items-center px-6 sm:px-12 mt-14 sm:mt-20">
@@ -82,24 +42,20 @@ export default function Home() {
         </form>
 
         <section className="mt-16 sm:mt-24 w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-          {cards.map((c) => (
-            <article
-              key={c.title}
-              className="bg-card rounded-md overflow-hidden flex flex-col"
+          {dates.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/dates/${c.slug}`}
+              className="bg-card rounded-md overflow-hidden flex flex-col group hover:shadow-md hover:-translate-y-0.5 transition-all"
             >
-              <div
-                className="aspect-[4/5] relative"
-                style={c.gradient ? { background: c.gradient } : undefined}
-              >
-                {c.image && (
-                  <Image
-                    src={c.image}
-                    alt={c.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                  />
-                )}
+              <div className="aspect-[4/5] relative">
+                <Image
+                  src={c.image}
+                  alt={c.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                />
               </div>
               <div className="p-6 sm:p-7 flex flex-col gap-4">
                 <div>
@@ -114,9 +70,12 @@ export default function Home() {
                   </p>
                 </div>
                 <hr className="border-foreground/10" />
-                <p className="text-sm text-foreground/65">
-                  {c.location} · {c.price} · {c.duration}
-                </p>
+                <div className="flex flex-col gap-1 text-sm text-foreground/65">
+                  <p>
+                    {c.location} · {c.duration}
+                  </p>
+                  <p>Cost est. {c.costEst}</p>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {c.tags.map((t) => (
                     <span
@@ -127,14 +86,91 @@ export default function Home() {
                     </span>
                   ))}
                 </div>
+                <span className="mt-1 inline-flex items-center justify-center h-11 px-5 rounded-md bg-foreground text-background font-medium group-hover:bg-foreground/90 transition-colors">
+                  Unlock for {UNLOCK_PRICE}
+                </span>
               </div>
-            </article>
+            </Link>
           ))}
         </section>
 
         <p className="mt-14 sm:mt-20 text-foreground/65 text-base">
           Curated by <em className="italic">47 locals</em> in Lisbon.
         </p>
+
+        <section className="mt-14 sm:mt-20 w-full max-w-6xl bg-card rounded-md p-8 sm:p-12">
+          <div className="max-w-3xl">
+            <h2
+              className="text-3xl sm:text-5xl tracking-tight leading-[1.1]"
+              style={{ fontFamily: "var(--font-serif)" }}
+            >
+              Create a date concept.
+            </h2>
+            <p className="mt-3 sm:mt-4 text-foreground/70 leading-relaxed text-base sm:text-lg">
+              You know a corner of your city worth two strangers&apos; evening.
+              Share it. Earn from it.
+            </p>
+          </div>
+
+          <form className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label htmlFor="concept-title" className="text-sm text-foreground/75">
+                Concept title
+              </label>
+              <input
+                id="concept-title"
+                type="text"
+                placeholder="e.g. Sunrise on the Tagus"
+                className="h-12 px-4 rounded-md bg-background border border-foreground/15 placeholder:text-foreground/40 focus:outline-none focus:border-foreground/40 transition-colors"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label htmlFor="concept-desc" className="text-sm text-foreground/75">
+                What happens
+              </label>
+              <textarea
+                id="concept-desc"
+                rows={4}
+                placeholder="Two strangers, one evening. What do they do?"
+                className="px-4 py-3 rounded-md bg-background border border-foreground/15 placeholder:text-foreground/40 focus:outline-none focus:border-foreground/40 transition-colors resize-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="concept-city" className="text-sm text-foreground/75">
+                City
+              </label>
+              <input
+                id="concept-city"
+                type="text"
+                placeholder="Lisbon"
+                className="h-12 px-4 rounded-md bg-background border border-foreground/15 placeholder:text-foreground/40 focus:outline-none focus:border-foreground/40 transition-colors"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="concept-email" className="text-sm text-foreground/75">
+                Your email
+              </label>
+              <input
+                id="concept-email"
+                type="email"
+                placeholder="you@example.com"
+                className="h-12 px-4 rounded-md bg-background border border-foreground/15 placeholder:text-foreground/40 focus:outline-none focus:border-foreground/40 transition-colors"
+              />
+            </div>
+
+            <div className="sm:col-span-2 mt-2">
+              <button
+                type="submit"
+                className="h-12 px-7 rounded-md bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors"
+              >
+                Submit your concept
+              </button>
+            </div>
+          </form>
+        </section>
       </main>
 
       <footer className="mt-14 sm:mt-20 border-t border-foreground/10">
