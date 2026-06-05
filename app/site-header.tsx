@@ -19,7 +19,7 @@ export default function SiteHeader() {
         <nav className="nav">
           <Link href="/" className={onLanding ? "active" : ""}>Today</Link>
           <Link href="/club" className={onClub ? "active" : ""}>The Club</Link>
-          <Link href="/club" className="nav-hide">Sell a date</Link>
+          <Link href="/create" className="nav-hide">Create a date</Link>
           <Link href="/club" className="btn btn-accent btn-sm" style={{ marginLeft: 8 }}>
             Join the Club
           </Link>

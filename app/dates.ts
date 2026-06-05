@@ -16,6 +16,8 @@ export type Concept = {
   moment: string;
   bring: string;
   backup: string;
+  creator?: string; // who made/curated it (user or sourced creator)
+  credit?: string;  // link back to the source/creator — always credit
 };
 
 export const CONCEPTS: Concept[] = [

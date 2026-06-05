@@ -34,7 +34,9 @@ function GCard({
         <div className="gkicker">{c.area} &middot; {c.vibe}</div>
         <h3>{c.title}</h3>
         <div className="gfoot">
-          <span className="gmeta">{c.budget} &middot; {c.energy}</span>
+          <span className="gmeta">
+            {c.creator ? `by ${c.creator}` : `${c.budget} · ${c.energy}`}
+          </span>
           <button
             className="gshare"
             onClick={(e) => { e.stopPropagation(); onShare(); }}
@@ -54,9 +56,13 @@ export default function Club() {
   const [showModal, setShowModal] = useState(false);
   const [active, setActive] = useState<Record<string, string[]>>({});
   const [share, setShare] = useState<Concept | null>(null);
+  const [userConcepts, setUserConcepts] = useState<Concept[]>([]);
 
   useEffect(() => {
     setMember(localStorage.getItem("dk_club") === "true");
+    try {
+      setUserConcepts(JSON.parse(localStorage.getItem("dk_concepts") || "[]"));
+    } catch {}
   }, []);
 
   function join() {
@@ -76,13 +82,17 @@ export default function Club() {
   const clearAll = () => setActive({});
   const activeCount = Object.values(active).reduce((s, a) => s + (a ? a.length : 0), 0);
 
-  const shown = CONCEPTS.filter((c) =>
+  const library = [...userConcepts, ...CONCEPTS];
+  const shown = library.filter((c) =>
     Object.keys(FIELD).every((group) => {
       const sel = active[group];
       if (!sel || !sel.length) return true;
       return sel.includes(c[FIELD[group]] as string);
     }),
   );
+
+  const open = (c: Concept) =>
+    c.id.startsWith("u_") ? setShare(c) : router.push(`/dates/${c.id}`);
 
   if (!member) {
     return (
@@ -175,7 +185,7 @@ export default function Club() {
                 key={c.id}
                 c={c}
                 h={HEIGHTS[i % HEIGHTS.length]}
-                onOpen={() => router.push(`/dates/${c.id}`)}
+                onOpen={() => open(c)}
                 onShare={() => setShare(c)}
               />
             ))}

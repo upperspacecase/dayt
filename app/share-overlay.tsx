@@ -60,6 +60,11 @@ export default function ShareOverlay({
                 </div>
                 <h3 className="sc-title">{concept.title}</h3>
                 <div className="sc-moment">{concept.hook}</div>
+                {concept.creator ? (
+                  <div className="sc-kicker" style={{ marginTop: 10, marginBottom: 0 }}>
+                    by {concept.creator}
+                  </div>
+                ) : null}
                 <div className="sc-caption">
                   &ldquo;Send this to someone you&rsquo;d do it with.&rdquo;
                 </div>
