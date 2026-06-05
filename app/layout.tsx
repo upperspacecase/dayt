@@ -7,7 +7,7 @@ import SiteFooter from "./site-footer";
 export const metadata: Metadata = {
   title: "Dayt Knight — Dating, without the admin.",
   description:
-    "We dream up the whole night — where, when, the one moment that makes it, what to bring, the backup if it rains. Three new ways to fall for someone, each day. New York.",
+    "Dayt Knight helps you plan better dates without turning romance into admin. Get inspired by fresh daily ideas, open the full plan, shape it to your person, and make it happen.",
 };
 
 export default function RootLayout({

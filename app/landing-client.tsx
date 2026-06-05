@@ -7,8 +7,7 @@ import Plate from "./plate";
 import ShareOverlay from "./share-overlay";
 import { subscribe } from "./actions";
 import { type Concept } from "./dates";
-import { ArrowR, SendIcon } from "./icons";
-import MetaChips from "./meta-chips";
+import { SendIcon } from "./icons";
 
 export default function LandingClient({
   dailyThree,
@@ -45,36 +44,24 @@ export default function LandingClient({
         )}
 
         <h1 className="hero-title">
-          Three new ways<br />to <em>fall for someone</em>,<br />each day.
+          we all deserve<br /><em>awesome</em> dates
         </h1>
         <p className="hero-sub">
-          We dream up the whole night &mdash; where, when, the one moment that makes it,
-          what to bring, the backup if it rains. You show up and connect. No more
-          &ldquo;what do you want to do?&rdquo;
+          Dayt Knight helps you discover and build complete date plans &mdash; the place,
+          the flow, the mood, the moment, and the backup &mdash; so you can spend less time
+          figuring it out and more time making it feel personal.
         </p>
         <div className="hero-actions">
-          <form className="email-cap" action={subscribe}>
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Your email for the daily three"
-              aria-label="Email"
-            />
-            <button type="submit" className="btn btn-accent btn-sm">Send them</button>
-          </form>
-          <Link
-            href="/club"
-            className="arrow-link"
-            style={{ color: "var(--ink-soft)" }}
-          >
-            or open the whole library{" "}
-            <ArrowR className="ar" style={{ width: 15, height: 15 }} />
-          </Link>
+          <a className="btn btn-accent" href="#today">See today&rsquo;s ideas</a>
+          <Link className="btn btn-ghost" href="/club">Join the Club</Link>
         </div>
       </section>
 
-      <section className="wrap-wide" style={{ paddingBottom: "var(--pad-section)" }}>
+      <section
+        id="today"
+        className="wrap-wide"
+        style={{ paddingBottom: "var(--pad-section)", scrollMarginTop: 90 }}
+      >
         <div className="sec-head">
           <div>
             <span className="kicker eyebrow-accent">Today&rsquo;s three &middot; free</span>
@@ -85,57 +72,73 @@ export default function LandingClient({
           </div>
         </div>
 
-        <div className="index-list">
+        <div className="triptych">
           {dailyThree.map((c, i) => (
             <article
               key={c.id}
-              className="index-row"
+              className="poster"
               onClick={() => router.push(`/dates/${c.id}`)}
             >
-              <div className="itext">
-                <div className="num">
-                  <span className="ln" />
-                  {String(i + 1).padStart(2, "0")}
+              <Plate tint={c.tint} scrim />
+              <div className="body">
+                <div className="p-top">
+                  <div className="p-kicker">{c.area} &middot; {c.vibe}</div>
+                  <div className="p-num">{String(i + 1).padStart(2, "0")}</div>
                 </div>
-                <h3 className="ititle">{c.title}</h3>
-                <p className="ihook">{c.hook}</p>
-                <div className="imeta">
-                  <MetaChips items={[c.area, c.vibe, c.budget]} />
-                </div>
-                <div className="iactions">
-                  <span className="arrow-link">
-                    The full night <ArrowR className="ar" />
-                  </span>
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShare(c);
-                    }}
-                  >
-                    <SendIcon style={{ width: 15, height: 15 }} /> Send it
-                  </button>
+                <div>
+                  <h3 className="ptitle">{c.title}</h3>
+                  <p className="pmoment">{c.hook}</p>
+                  <div className="pfoot">
+                    <span className="pmetaline">{c.timing}</span>
+                    <button
+                      className="icon-btn"
+                      onClick={(e) => { e.stopPropagation(); setShare(c); }}
+                      aria-label="Send"
+                    >
+                      <SendIcon />
+                    </button>
+                  </div>
                 </div>
               </div>
-              <Plate tint={c.tint} tag={c.timing} />
             </article>
           ))}
+        </div>
+
+        <div
+          style={{
+            marginTop: "clamp(30px,4vw,56px)",
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            flexWrap: "wrap",
+          }}
+        >
+          <span className="kicker">Get the daily three in your inbox</span>
+          <form className="email-cap" action={subscribe}>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="you@email.com"
+              aria-label="Email"
+            />
+            <button type="submit" className="btn btn-accent btn-sm">Send them</button>
+          </form>
         </div>
       </section>
 
       <section className="belief" style={{ background: "var(--bg-2)" }}>
         <div className="wrap-wide">
           <p className="line">
-            The best part is the connection.<br />
-            <span className="soft">The worst part is the planning.</span><br />
-            We took the planning.
+            Dayt Knight helps you plan better dates<br />
+            <span className="soft">without turning romance into admin.</span>
           </p>
           <div className="sig">
             <span
               className="rule"
               style={{ width: 44, height: 1, background: "var(--accent)", display: "inline-block" }}
             />
-            Dating should feel like magic. The admin shouldn&rsquo;t get in the way.
+            Get inspired by fresh daily ideas, open the full plan, shape it to your person, and make it happen.
           </div>
         </div>
       </section>
