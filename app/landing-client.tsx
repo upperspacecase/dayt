@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Plate from "./plate";
-import ShareOverlay from "./share-overlay";
-import { subscribe } from "./actions";
 import { type Concept } from "./dates";
-import { SendIcon } from "./icons";
 
 export default function LandingClient({
   dailyThree,
@@ -18,9 +15,17 @@ export default function LandingClient({
   subscribed: boolean;
   errored: boolean;
 }) {
-  const [share, setShare] = useState<Concept | null>(null);
   const router = useRouter();
-  const hero = dailyThree[0];
+  const [idx, setIdx] = useState(0);
+
+  // the hero card rotates through today's three
+  useEffect(() => {
+    if (dailyThree.length < 2) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % dailyThree.length), 4500);
+    return () => clearInterval(t);
+  }, [dailyThree.length]);
+
+  const hero = dailyThree[idx % (dailyThree.length || 1)];
 
   return (
     <main className="landing">
@@ -29,62 +34,34 @@ export default function LandingClient({
         <div className="home-hero-scrim" aria-hidden />
         <div className="home-hero-inner">
           {subscribed && (
-            <div className="meta-chip" style={{ marginBottom: 22 }}>
+            <div className="meta-chip" style={{ marginBottom: 18 }}>
               <span className="dot" /> You&rsquo;re in. Three fresh New York dates land in your inbox, starting tomorrow.
             </div>
           )}
           {errored && (
-            <div className="meta-chip" style={{ marginBottom: 22 }}>
+            <div className="meta-chip" style={{ marginBottom: 18 }}>
               <span className="dot" /> That didn&rsquo;t go through. Mind trying again?
             </div>
           )}
           <h1 className="home-hero-title">
-            we all deserve<br /><em>awesome</em> dates
+            We deserve <em>awesome</em> dates.
           </h1>
+          <Link href="/club" className="home-hero-join">Join the club</Link>
         </div>
 
         {hero && (
           <article className="hero-card" onClick={() => router.push(`/dates/${hero.id}`)}>
             <Plate tint={hero.tint} scrim />
-            <div className="card-body">
+            <div className="card-body" key={hero.id}>
               <div className="p-kicker">{hero.area} &middot; {hero.vibe}</div>
               <h3 className="ptitle">{hero.title}</h3>
               <p className="pmoment">{hero.hook}</p>
               <div className="pfoot">
                 <span className="pmetaline">{hero.timing}</span>
-                <button
-                  className="icon-btn"
-                  onClick={(e) => { e.stopPropagation(); setShare(hero); }}
-                  aria-label="Send"
-                >
-                  <SendIcon />
-                </button>
               </div>
             </div>
           </article>
         )}
-      </section>
-
-      <section className="home-intro">
-        <p className="hero-sub">
-          Dayt Knight helps you discover and build complete date plans &mdash; the
-          place, the flow, the mood, the moment, and the backup &mdash; so you can spend
-          less time figuring it out and more time making it feel personal.
-        </p>
-        <div className="hero-actions">
-          <a className="btn btn-accent" href="#today">See today&rsquo;s ideas</a>
-          <Link className="btn btn-ghost" href="/club">Join the Club</Link>
-        </div>
-        <form className="email-cap" action={subscribe}>
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder="Your email for the daily three"
-            aria-label="Email"
-          />
-          <button type="submit" className="btn btn-accent btn-sm">Send them</button>
-        </form>
       </section>
 
       <section
@@ -98,7 +75,7 @@ export default function LandingClient({
             <h2 style={{ marginTop: 12 }}>On the table tonight</h2>
           </div>
           <div className="sub" style={{ maxWidth: "32ch", textAlign: "right" }}>
-            Fresh at midnight. Gone tomorrow. Made for sending.
+            Fresh at midnight. Gone tomorrow.
           </div>
         </div>
 
@@ -120,13 +97,6 @@ export default function LandingClient({
                   <p className="pmoment">{c.hook}</p>
                   <div className="pfoot">
                     <span className="pmetaline">{c.timing}</span>
-                    <button
-                      className="icon-btn"
-                      onClick={(e) => { e.stopPropagation(); setShare(c); }}
-                      aria-label="Send"
-                    >
-                      <SendIcon />
-                    </button>
                   </div>
                 </div>
               </div>
@@ -155,8 +125,6 @@ export default function LandingClient({
           </div>
         </div>
       </section>
-
-      {share && <ShareOverlay concept={share} onClose={() => setShare(null)} />}
     </main>
   );
 }
