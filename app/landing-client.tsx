@@ -47,24 +47,25 @@ export default function LandingClient({
           <h1 className="home-hero-title">
             We deserve <em>awesome</em> dates.
           </h1>
-          <p className="home-hero-promise">Three fresh New York date ideas, in your inbox.</p>
-          <form className="email-cap" action={subscribe}>
-            <input type="email" name="email" required placeholder="Your email" aria-label="Email" />
-            <button type="submit" className="btn btn-accent btn-sm">Get them</button>
-          </form>
           <Link href="/club" className="home-hero-join secondary">or join the club</Link>
         </div>
 
         {hero && (
-          <article className="hero-card" onClick={() => router.push(`/dates/${hero.id}`)}>
+          <article className="hero-card">
             <Plate tint={hero.tint} scrim />
-            <div className="card-body" key={hero.id}>
-              <div className="p-kicker">{hero.area} &middot; {hero.vibe}</div>
-              <h3 className="ptitle">{hero.title}</h3>
-              <p className="pmoment">{hero.hook}</p>
-              <div className="pfoot">
-                <span className="pmetaline">{hero.timing}</span>
+            <div className="hero-card-inner">
+              <div className="card-date" key={hero.id} onClick={() => router.push(`/dates/${hero.id}`)}>
+                <div className="p-kicker">{hero.area} &middot; {hero.vibe}</div>
+                <h3 className="ptitle">{hero.title}</h3>
+                <p className="pmoment">{hero.hook}</p>
               </div>
+              <form className="card-email" action={subscribe}>
+                <span className="card-email-label">Three fresh ideas like this, every day</span>
+                <div className="card-email-row">
+                  <input type="email" name="email" required placeholder="Your email" aria-label="Email" />
+                  <button type="submit" className="btn btn-accent btn-sm">Get them</button>
+                </div>
+              </form>
             </div>
           </article>
         )}
