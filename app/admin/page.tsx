@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SignInButton, GoogleOneTap, useUser } from "@clerk/nextjs";
 import { type Concept } from "../dates";
+import GoogleSignIn, { GOOGLE_CLIENT_ID, decodeToken } from "../google-signin";
 
-const CLERK_ON = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const GOOGLE_ON = !!GOOGLE_CLIENT_ID;
 const ADMIN_EMAIL = "taytoddpattison@gmail.com";
 
 function Head() {
@@ -20,24 +20,26 @@ function Head() {
   );
 }
 
-// Loads + renders the drafts. keyToken set => editor-key auth; omitted => Clerk cookie.
-function Queue({ keyToken }: { keyToken?: string }) {
+// Loads + renders the drafts. google = a Google ID token; keyToken = the editor-key.
+function Queue({ google, keyToken }: { google?: string; keyToken?: string }) {
   const [drafts, setDrafts] = useState<Concept[] | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(keyToken ? `/api/admin/concepts?token=${encodeURIComponent(keyToken)}` : "/api/admin/concepts")
+    const url = keyToken ? `/api/admin/concepts?token=${encodeURIComponent(keyToken)}` : "/api/admin/concepts";
+    const headers: HeadersInit = google ? { Authorization: `Bearer ${google}` } : {};
+    fetch(url, { headers })
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then(setDrafts)
       .catch((s) => setError(s === 401 ? "That account isn't allowed." : "Could not load the queue."));
-  }, [keyToken]);
+  }, [google, keyToken]);
 
   async function act(id: string, action: "publish" | "reject") {
     setDrafts((d) => (d ? d.filter((c) => c.id !== id) : d));
     await fetch("/api/admin/concepts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, action, token: keyToken || undefined }),
+      body: JSON.stringify({ id, action, googleToken: google, token: keyToken }),
     });
   }
 
@@ -58,14 +60,15 @@ function Queue({ keyToken }: { keyToken?: string }) {
           <div className="gkicker">{c.area} &middot; {c.vibe} &middot; {c.budget} &middot; {c.energy} &middot; {c.stage}</div>
           <h3 className="serif" style={{ fontSize: 28, margin: "6px 0 4px", letterSpacing: "var(--display-tight)" }}>{c.title}</h3>
           <p style={{ color: "var(--ink-soft)", margin: "0 0 12px", lineHeight: 1.5 }}>{c.hook}</p>
-          <ol style={{ margin: "0 0 14px", paddingLeft: 0, listStyle: "none", display: "grid", gap: 6 }}>
-            {c.arc.map((s, i) => (
-              <li key={i} style={{ fontSize: 14, color: "var(--ink-soft)" }}>
-                <strong style={{ color: "var(--ink)" }}>{s.t}</strong> &nbsp;{s.d}
-              </li>
-            ))}
-          </ol>
-          <p style={{ fontSize: 13.5, color: "var(--ink-faint)", margin: "0 0 16px" }}>The moment: {c.moment}</p>
+          {c.arc.length ? (
+            <ol style={{ margin: "0 0 14px", paddingLeft: 0, listStyle: "none", display: "grid", gap: 6 }}>
+              {c.arc.map((s, i) => (
+                <li key={i} style={{ fontSize: 14, color: "var(--ink-soft)" }}>
+                  <strong style={{ color: "var(--ink)" }}>{s.t}</strong> &nbsp;{s.d}
+                </li>
+              ))}
+            </ol>
+          ) : null}
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <button className="btn btn-accent" onClick={() => act(c.id, "publish")}>Publish</button>
             <button className="btn btn-ghost" onClick={() => act(c.id, "reject")}>Pass</button>
@@ -79,7 +82,24 @@ function Queue({ keyToken }: { keyToken?: string }) {
   );
 }
 
-// Editor-key fallback (used until Clerk keys are configured).
+// Google path: One Tap / sign-in, then only the allowed email sees the queue.
+function GoogleInner() {
+  const [token, setToken] = useState("");
+  if (token) {
+    const email = decodeToken(token).email?.toLowerCase();
+    if (email && email !== ADMIN_EMAIL) {
+      return <p style={{ color: "var(--accent)", marginTop: 16 }}>Signed in as {email} &mdash; this queue is {ADMIN_EMAIL} only.</p>;
+    }
+    return <Queue google={token} />;
+  }
+  return (
+    <div style={{ marginTop: 22 }}>
+      <GoogleSignIn onToken={setToken} />
+    </div>
+  );
+}
+
+// Editor-key fallback (used until the Google client ID is set).
 function KeyGate() {
   const [key, setKey] = useState("");
   const [open, setOpen] = useState(false);
@@ -104,33 +124,12 @@ function KeyGate() {
   );
 }
 
-// Clerk path: Google One Tap / sign-in, then only the allowed email sees the queue.
-function ClerkInner() {
-  const { isLoaded, isSignedIn, user } = useUser();
-  if (!isLoaded) return <p style={{ color: "var(--ink-soft)", marginTop: 16 }}>Loading&hellip;</p>;
-  if (!isSignedIn) {
-    return (
-      <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
-        <GoogleOneTap />
-        <SignInButton mode="modal">
-          <button className="btn btn-accent">Sign in with Google</button>
-        </SignInButton>
-      </div>
-    );
-  }
-  const email = user.primaryEmailAddress?.emailAddress?.toLowerCase();
-  if (email !== ADMIN_EMAIL) {
-    return <p style={{ color: "var(--accent)", marginTop: 16 }}>Signed in as {email} &mdash; this queue is {ADMIN_EMAIL} only.</p>;
-  }
-  return <Queue />;
-}
-
 export default function Admin() {
   return (
     <main className="club">
       <div className="wrap-wide">
         <Head />
-        {CLERK_ON ? <ClerkInner /> : <KeyGate />}
+        {GOOGLE_ON ? <GoogleInner /> : <KeyGate />}
       </div>
     </main>
   );

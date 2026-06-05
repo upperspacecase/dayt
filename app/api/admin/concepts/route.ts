@@ -1,34 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { conceptsCol, clean } from "../../../mongodb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "taytoddpattison@gmail.com").toLowerCase();
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
-// Allow only the admin: a Clerk sign-in whose email matches, or — until Clerk's keys
-// are set — the editor key as a fallback.
-async function authorize(adminKey?: string | null): Promise<boolean> {
-  if (process.env.CLERK_SECRET_KEY) {
-    try {
-      const { userId } = await auth();
-      if (userId) {
-        const u = await currentUser();
-        const email = u?.primaryEmailAddress?.emailAddress?.toLowerCase();
-        if (email === ADMIN_EMAIL) return true;
-      }
-    } catch {
-      // fall through to the key check
-    }
+// Verify a Google ID token via Google's tokeninfo endpoint (it checks the signature
+// and expiry server-side) and return the verified email.
+async function googleEmail(idToken: string): Promise<string | null> {
+  const r = await fetch(
+    `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
+  );
+  if (!r.ok) return null;
+  const c = await r.json();
+  if (CLIENT_ID && c.aud !== CLIENT_ID) return null;
+  if (c.email_verified !== "true" && c.email_verified !== true) return null;
+  return typeof c.email === "string" ? c.email.toLowerCase() : null;
+}
+
+// Allow only the admin: a Google sign-in whose email matches, or — until the Google
+// client ID is set — the editor key as a fallback.
+async function authorize(google?: string | null, admin?: string | null): Promise<boolean> {
+  if (google) {
+    const email = await googleEmail(google);
+    if (email && email === ADMIN_EMAIL) return true;
   }
   const expected = process.env.ADMIN_TOKEN;
-  return !!expected && adminKey === expected;
+  return !!expected && admin === expected;
+}
+
+function bearer(req: NextRequest): string | null {
+  const h = req.headers.get("authorization") || "";
+  return h.startsWith("Bearer ") ? h.slice(7) : null;
 }
 
 // the review queue — engine drafts awaiting a thumbs-up
 export async function GET(req: NextRequest) {
-  if (!(await authorize(req.nextUrl.searchParams.get("token")))) {
+  if (!(await authorize(bearer(req), req.nextUrl.searchParams.get("token")))) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const col = await conceptsCol();
@@ -39,7 +49,7 @@ export async function GET(req: NextRequest) {
 // publish a draft, or reject (delete) it
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  if (!(await authorize(body.token))) {
+  if (!(await authorize(body.googleToken, body.token))) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   if (!body.id || (body.action !== "publish" && body.action !== "reject")) {

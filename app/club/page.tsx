@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SignInButton, GoogleOneTap, useUser } from "@clerk/nextjs";
 import Plate from "../plate";
 import ShareOverlay from "../share-overlay";
 import { CONCEPTS, FILTERS, type Concept } from "../dates";
 import { SendIcon, LockIcon } from "../icons";
+import GoogleSignIn, { GOOGLE_CLIENT_ID } from "../google-signin";
 
-const CLERK_ON = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const GOOGLE_ON = !!GOOGLE_CLIENT_ID;
 
 const FIELD: Record<string, keyof Concept> = {
   Area: "area",
@@ -165,7 +165,7 @@ function Library() {
 }
 
 // The locked door — a blurred peek and a way in.
-function Locked({ oneTap, cta }: { oneTap?: boolean; cta: React.ReactNode }) {
+function Locked({ cta }: { cta: React.ReactNode }) {
   return (
     <main className="club">
       <div className="wrap-wide">
@@ -176,7 +176,6 @@ function Locked({ oneTap, cta }: { oneTap?: boolean; cta: React.ReactNode }) {
             Every idea we&rsquo;ve dreamt up &mdash; unlimited, and filtered down to your
             neighborhood, your budget, your kind of night. Free while we&rsquo;re testing.
           </p>
-          {oneTap ? <GoogleOneTap /> : null}
           <div style={{ marginTop: 22 }}>{cta}</div>
         </div>
 
@@ -201,26 +200,17 @@ function Locked({ oneTap, cta }: { oneTap?: boolean; cta: React.ReactNode }) {
   );
 }
 
-// Clerk gate: signing in is membership.
-function ClerkGate() {
-  const { isLoaded, isSignedIn } = useUser();
-  if (!isLoaded) {
-    return (
-      <main className="club">
-        <div className="wrap-wide club-head">
-          <p className="club-sub">Loading&hellip;</p>
-        </div>
-      </main>
-    );
-  }
-  if (isSignedIn) return <Library />;
+// Google gate: signing in is membership.
+function GoogleGate() {
+  const [member, setMember] = useState(false);
+  useEffect(() => {
+    if (sessionStorage.getItem("dk_member") === "1") setMember(true);
+  }, []);
+  if (member) return <Library />;
   return (
     <Locked
-      oneTap
       cta={
-        <SignInButton mode="modal">
-          <button className="btn btn-accent">Sign in with Google &mdash; free while we test</button>
-        </SignInButton>
+        <GoogleSignIn onToken={() => { sessionStorage.setItem("dk_member", "1"); setMember(true); }} />
       }
     />
   );
@@ -246,7 +236,7 @@ function LocalGate() {
 }
 
 export default function Club() {
-  return CLERK_ON ? <ClerkGate /> : <LocalGate />;
+  return GOOGLE_ON ? <GoogleGate /> : <LocalGate />;
 }
 
 function JoinModal({ onJoin, onClose }: { onJoin: () => void; onClose: () => void }) {

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import "./design.css";
 import SiteHeader from "./site-header";
@@ -37,24 +36,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>
-        {/* ClerkProvider wraps the app once its keys are set — site runs untouched until then. */}
-        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? (
-          <ClerkProvider
-            appearance={{
-              variables: {
-                colorPrimary: "#DE4D86",
-                borderRadius: "12px",
-                fontFamily: "Inter, system-ui, sans-serif",
-              },
-            }}
-          >
-            {app}
-          </ClerkProvider>
-        ) : (
-          app
-        )}
-      </body>
+      <body>{app}</body>
     </html>
   );
 }
