@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
       from: FROM,
       subject: "Your three for the weekend",
       segment_id: segmentId,
-      name: `Weekly — ${ideas.map((i) => i.title).join(", ")}`.slice(0, 110),
+      name: `Weekly — ${ideas.map((i) => i.title).join(", ")}`.slice(0, 68),
       html,
     }),
   });
