@@ -1,29 +1,58 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Script from "next/script";
 import { type Concept } from "../dates";
 
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
 export default function Admin() {
+  const [gtoken, setGtoken] = useState("");
   const [key, setKey] = useState("");
   const [drafts, setDrafts] = useState<Concept[] | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (CLIENT_ID) return; // Google configured -> Google only
     const saved = localStorage.getItem("dk_admin_key") || "";
     setKey(saved);
-    if (saved) load(saved);
+    if (saved) loadWithKey(saved);
   }, []);
 
-  async function load(k: string) {
-    setError("");
-    const r = await fetch(`/api/admin/concepts?token=${encodeURIComponent(k)}`);
-    if (!r.ok) {
-      setError(r.status === 401 ? "Wrong key." : "Could not load the queue.");
+  function initGoogle() {
+    const g = (window as unknown as { google?: any }).google;
+    if (!g || !CLIENT_ID) return;
+    g.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: (resp: { credential: string }) => {
+        setGtoken(resp.credential);
+        loadWithGoogle(resp.credential);
+      },
+    });
+    const el = document.getElementById("gbtn");
+    if (el) g.accounts.id.renderButton(el, { theme: "outline", size: "large", text: "signin_with", shape: "pill" });
+    g.accounts.id.prompt(); // One Tap
+  }
+
+  function handle(ok: boolean, status: number, data: Concept[] | null) {
+    if (!ok) {
+      setError(status === 401 ? "Not you — that account isn't allowed." : "Could not load the queue.");
       setDrafts(null);
       return;
     }
-    localStorage.setItem("dk_admin_key", k);
-    setDrafts(await r.json());
+    setError("");
+    setDrafts(data);
+  }
+
+  async function loadWithGoogle(token: string) {
+    const r = await fetch("/api/admin/concepts", { headers: { Authorization: `Bearer ${token}` } });
+    handle(r.ok, r.status, r.ok ? await r.json() : null);
+  }
+
+  async function loadWithKey(k: string) {
+    const r = await fetch(`/api/admin/concepts?token=${encodeURIComponent(k)}`);
+    if (r.ok) localStorage.setItem("dk_admin_key", k);
+    handle(r.ok, r.status, r.ok ? await r.json() : null);
   }
 
   async function act(id: string, action: "publish" | "reject") {
@@ -31,12 +60,15 @@ export default function Admin() {
     await fetch("/api/admin/concepts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: key, id, action }),
+      body: JSON.stringify({ googleToken: gtoken || undefined, token: key || undefined, id, action }),
     });
   }
 
   return (
     <main className="club">
+      {CLIENT_ID && (
+        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onLoad={initGoogle} />
+      )}
       <div className="wrap-wide">
         <div className="club-head">
           <div className="lockline">The engine</div>
@@ -45,22 +77,31 @@ export default function Admin() {
             Concepts the engine drafted overnight, sourced and credited. Approve the good
             ones and they go live in the Club. Pass on the rest.
           </p>
-          <div style={{ display: "flex", gap: 10, marginTop: 20, maxWidth: 460 }}>
-            <input
-              type="password"
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && load(key)}
-              placeholder="Editor key"
-              style={{
-                flex: 1, height: 46, padding: "0 14px", borderRadius: 10,
-                background: "var(--surface)", border: "1px solid var(--line)",
-                color: "var(--ink)", fontFamily: "var(--font-body)", fontSize: 15,
-              }}
-            />
-            <button className="btn btn-accent" onClick={() => load(key)}>Open</button>
-          </div>
-          {error ? <p style={{ color: "var(--accent)", marginTop: 12 }}>{error}</p> : null}
+
+          {!drafts && (
+            <div style={{ marginTop: 22 }}>
+              {CLIENT_ID ? (
+                <div id="gbtn" />
+              ) : (
+                <div style={{ display: "flex", gap: 10, maxWidth: 460 }}>
+                  <input
+                    type="password"
+                    value={key}
+                    onChange={(e) => setKey(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && loadWithKey(key)}
+                    placeholder="Editor key"
+                    style={{
+                      flex: 1, height: 46, padding: "0 14px", borderRadius: 10,
+                      background: "var(--surface)", border: "1px solid var(--line)",
+                      color: "var(--ink)", fontFamily: "var(--font-body)", fontSize: 15,
+                    }}
+                  />
+                  <button className="btn btn-accent" onClick={() => loadWithKey(key)}>Open</button>
+                </div>
+              )}
+              {error ? <p style={{ color: "var(--accent)", marginTop: 12 }}>{error}</p> : null}
+            </div>
+          )}
         </div>
 
         {drafts && (
@@ -102,7 +143,7 @@ export default function Admin() {
           ) : (
             <div className="empty-state">
               <div className="es-title">Queue&rsquo;s empty.</div>
-              <p>Run the engine to draft a fresh batch.</p>
+              <p>The engine refills it overnight.</p>
             </div>
           )
         )}
