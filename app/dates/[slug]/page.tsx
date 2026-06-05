@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { dates, findDate, UNLOCK_PRICE } from "../../dates";
+import { dates, findDate, cardGradient } from "../../dates";
+import ShareButton from "../../share-button";
 
 export function generateStaticParams() {
   return dates.map((d) => ({ slug: d.slug }));
@@ -49,18 +50,25 @@ export default async function DatePage({
             href="/"
             className="inline-flex items-center gap-2 text-sm text-foreground/65 hover:text-foreground transition-colors"
           >
-            ← All concepts
+            ← Today&apos;s three
           </Link>
 
           <div className="mt-6 aspect-[16/10] relative rounded-md overflow-hidden bg-card">
-            <Image
-              src={d.image}
-              alt={d.title}
-              fill
-              sizes="(max-width: 1024px) 100vw, 1024px"
-              className="object-cover"
-              priority
-            />
+            {d.image ? (
+              <Image
+                src={d.image}
+                alt={d.title}
+                fill
+                sizes="(max-width: 1024px) 100vw, 1024px"
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div
+                className="absolute inset-0"
+                style={{ background: cardGradient(d.slug) }}
+              />
+            )}
           </div>
 
           <h1
@@ -73,7 +81,7 @@ export default async function DatePage({
             {d.desc}
           </p>
 
-          <div className="mt-8 grid grid-cols-3 gap-6 max-w-xl border-t border-b border-foreground/10 py-5">
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl border-t border-b border-foreground/10 py-5">
             <div>
               <p className="text-xs uppercase tracking-wider text-foreground/55">
                 Where
@@ -91,6 +99,12 @@ export default async function DatePage({
                 Cost est.
               </p>
               <p className="mt-1 text-base">{d.costEst}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wider text-foreground/55">
+                Vibe
+              </p>
+              <p className="mt-1 text-base">{d.energy}</p>
             </div>
           </div>
 
@@ -110,26 +124,53 @@ export default async function DatePage({
               className="text-2xl sm:text-3xl tracking-tight"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              What you unlock
+              The plan
             </h2>
-            <ul className="mt-4 flex flex-col gap-3 text-foreground/80 leading-relaxed">
-              <li>The exact spot, the door, the right hour to arrive.</li>
-              <li>What to order, what to bring, what to skip.</li>
-              <li>Three conversation prompts the locals swear by.</li>
-              <li>A backup plan if the weather turns.</li>
-            </ul>
+            <ol className="mt-4 flex flex-col gap-3 text-foreground/80 leading-relaxed">
+              {d.arc.map((step, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="text-foreground/40 tabular-nums">{i + 1}.</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
           </section>
 
-          <div className="mt-12 sm:mt-14 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8 pb-4">
-            <button
-              type="button"
-              className="h-14 px-8 rounded-md bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors text-base"
+          <section className="mt-10 max-w-2xl rounded-md bg-card p-6 sm:p-7">
+            <p className="text-xs uppercase tracking-wider text-foreground/55">
+              The moment
+            </p>
+            <p
+              className="mt-2 text-xl sm:text-2xl leading-snug"
+              style={{ fontFamily: "var(--font-serif)" }}
             >
-              Unlock for {UNLOCK_PRICE}
-            </button>
+              {d.moment}
+            </p>
+          </section>
+
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl">
+            <div>
+              <p className="text-xs uppercase tracking-wider text-foreground/55">
+                Bring
+              </p>
+              <p className="mt-1 text-base text-foreground/80 leading-relaxed">
+                {d.bring}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wider text-foreground/55">
+                If it rains
+              </p>
+              <p className="mt-1 text-base text-foreground/80 leading-relaxed">
+                {d.backup}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-12 sm:mt-14 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8 pb-4">
+            <ShareButton slug={d.slug} title={d.title} />
             <p className="text-sm text-foreground/60 max-w-sm">
-              One-time. No account. The full plan lands in your inbox as a link
-              you can open any time.
+              The whole night, handled. Send it to the person you&apos;d want there.
             </p>
           </div>
         </div>

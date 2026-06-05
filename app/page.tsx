@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { dates, UNLOCK_PRICE } from "./dates";
+import { getDailyThree, cardGradient } from "./dates";
 import { subscribe } from "./actions";
 
 export default async function Home({
@@ -11,6 +11,7 @@ export default async function Home({
   const params = await searchParams;
   const subscribed = params.subscribed === "1";
   const errored = typeof params.error !== "undefined";
+  const today = getDailyThree();
 
   return (
     <div className="flex flex-col flex-1 bg-background text-foreground">
@@ -27,7 +28,7 @@ export default async function Home({
       <main className="flex-1 flex flex-col items-center px-6 sm:px-12 mt-14 sm:mt-20">
         {subscribed && (
           <div className="mb-8 w-full max-w-2xl rounded-md border border-foreground/20 bg-card px-5 py-4 text-center text-base">
-            You&apos;re in. Your first three New York dates land this week.
+            You&apos;re in. Three fresh New York dates land in your inbox, starting tomorrow.
           </div>
         )}
         {errored && (
@@ -40,11 +41,11 @@ export default async function Home({
           className="text-center leading-[1.05] max-w-5xl tracking-tight text-5xl sm:text-7xl font-normal"
           style={{ fontFamily: "var(--font-serif)" }}
         >
-          Three New York date ideas. Every week. Free.
+          Three New York date ideas. New each day. Free.
         </h1>
         <p className="mt-5 sm:mt-6 text-center text-lg sm:text-xl text-foreground/70 max-w-2xl leading-relaxed">
-          Real spots from people who actually live here, straight to your inbox.
-          No planning, no account.
+          The whole night, planned. Real spots from people who live here. No admin,
+          no account.
         </p>
 
         <form
@@ -66,11 +67,11 @@ export default async function Home({
             type="submit"
             className="h-14 px-7 rounded-md bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors whitespace-nowrap"
           >
-            Get my 3 dates
+            Email me the daily three
           </button>
         </form>
         <p className="mt-4 text-sm text-foreground/55">
-          One email a week. Real NYC spots. Unsubscribe anytime.
+          New each day. Unsubscribe anytime.
         </p>
 
         <section className="mt-16 sm:mt-24 w-full max-w-6xl">
@@ -79,29 +80,36 @@ export default async function Home({
               className="text-3xl sm:text-5xl tracking-tight leading-[1.1]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              This week in New York
+              Tonight in New York
             </h2>
             <p className="mt-3 text-foreground/70 leading-relaxed text-base sm:text-lg">
-              Three dates locals are into right now. Unlock the full plan for{" "}
-              {UNLOCK_PRICE}.
+              Three fresh dates, new each day. Open one, send it to someone you&apos;d
+              do it with.
             </p>
           </div>
 
           <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-            {dates.map((c) => (
+            {today.map((c) => (
               <Link
                 key={c.slug}
                 href={`/dates/${c.slug}`}
                 className="bg-card rounded-md overflow-hidden flex flex-col group hover:shadow-md hover:-translate-y-0.5 transition-all"
               >
                 <div className="aspect-[4/5] relative">
-                  <Image
-                    src={c.image}
-                    alt={c.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                  />
+                  {c.image ? (
+                    <Image
+                      src={c.image}
+                      alt={c.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: cardGradient(c.slug) }}
+                    />
+                  )}
                 </div>
                 <div className="p-6 sm:p-7 flex flex-col gap-4">
                   <div>
@@ -133,7 +141,7 @@ export default async function Home({
                     ))}
                   </div>
                   <span className="mt-1 inline-flex items-center justify-center h-11 px-5 rounded-md bg-foreground text-background font-medium group-hover:bg-foreground/90 transition-colors">
-                    Unlock for {UNLOCK_PRICE}
+                    See the date
                   </span>
                 </div>
               </Link>
@@ -142,7 +150,7 @@ export default async function Home({
         </section>
 
         <p className="mt-14 sm:mt-20 text-foreground/65 text-base">
-          Written by New Yorkers who actually go on these dates.
+          Written by New Yorkers who go on these dates.
         </p>
 
         <section className="mt-14 sm:mt-20 w-full max-w-6xl bg-card rounded-md p-8 sm:p-12">
@@ -154,8 +162,8 @@ export default async function Home({
               Create a date concept.
             </h2>
             <p className="mt-3 sm:mt-4 text-foreground/70 leading-relaxed text-base sm:text-lg">
-              You know a corner of this city worth two strangers&apos; evening.
-              Share it. Earn when people book it.
+              You know a corner of this city worth someone&apos;s evening. Share it.
+              Earn when people book it.
             </p>
           </div>
 
@@ -179,7 +187,7 @@ export default async function Home({
               <textarea
                 id="concept-desc"
                 rows={4}
-                placeholder="Two strangers, one evening. What do they do?"
+                placeholder="Two people, one evening. What do they do?"
                 className="px-4 py-3 rounded-md bg-background border border-foreground/15 placeholder:text-foreground/40 focus:outline-none focus:border-foreground/40 transition-colors resize-none"
               />
             </div>
