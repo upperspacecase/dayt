@@ -16,7 +16,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const tree = (
+  const app = (
+    <div className="app" data-mood="cream" data-fonts="serif" data-density="comfortable">
+      <SiteHeader />
+      {children}
+      <SiteFooter />
+    </div>
+  );
+  return (
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,14 +38,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <div className="app" data-mood="cream" data-fonts="serif" data-density="comfortable">
-          <SiteHeader />
-          {children}
-          <SiteFooter />
-        </div>
+        {/* ClerkProvider wraps the app once its keys are set — site runs untouched until then. */}
+        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? <ClerkProvider>{app}</ClerkProvider> : app}
       </body>
     </html>
   );
-  // Clerk only wraps the app once its keys are set — site runs untouched until then.
-  return process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? <ClerkProvider>{tree}</ClerkProvider> : tree;
 }
