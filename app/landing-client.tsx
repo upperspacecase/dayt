@@ -20,38 +20,62 @@ export default function LandingClient({
 }) {
   const [share, setShare] = useState<Concept | null>(null);
   const router = useRouter();
+  const hero = dailyThree[0];
 
   return (
     <main className="landing">
-      <section className="wrap-wide masthead" style={{ textAlign: "center" }}>
-        {subscribed && (
-          <div className="meta-chip" style={{ marginBottom: 20 }}>
-            <span className="dot" /> You&rsquo;re in. Three fresh New York dates land in your inbox, starting tomorrow.
-          </div>
-        )}
-        {errored && (
-          <div className="meta-chip" style={{ marginBottom: 20 }}>
-            <span className="dot" /> That didn&rsquo;t go through. Mind trying again?
-          </div>
-        )}
+      <section className="home-hero">
+        <div className="home-hero-bg" aria-hidden />
+        <div className="home-hero-scrim" aria-hidden />
+        <div className="home-hero-inner">
+          {subscribed && (
+            <div className="meta-chip" style={{ marginBottom: 22 }}>
+              <span className="dot" /> You&rsquo;re in. Three fresh New York dates land in your inbox, starting tomorrow.
+            </div>
+          )}
+          {errored && (
+            <div className="meta-chip" style={{ marginBottom: 22 }}>
+              <span className="dot" /> That didn&rsquo;t go through. Mind trying again?
+            </div>
+          )}
+          <h1 className="home-hero-title">
+            we all deserve<br /><em>awesome</em> dates
+          </h1>
+        </div>
 
-        <h1 className="hero-title" style={{ marginInline: "auto" }}>
-          we all deserve<br /><em>awesome</em> dates
-        </h1>
-        <p className="hero-sub" style={{ marginInline: "auto" }}>
+        {hero && (
+          <article className="hero-card" onClick={() => router.push(`/dates/${hero.id}`)}>
+            <Plate tint={hero.tint} scrim />
+            <div className="card-body">
+              <div className="p-kicker">{hero.area} &middot; {hero.vibe}</div>
+              <h3 className="ptitle">{hero.title}</h3>
+              <p className="pmoment">{hero.hook}</p>
+              <div className="pfoot">
+                <span className="pmetaline">{hero.timing}</span>
+                <button
+                  className="icon-btn"
+                  onClick={(e) => { e.stopPropagation(); setShare(hero); }}
+                  aria-label="Send"
+                >
+                  <SendIcon />
+                </button>
+              </div>
+            </div>
+          </article>
+        )}
+      </section>
+
+      <section className="home-intro">
+        <p className="hero-sub">
           Dayt Knight helps you discover and build complete date plans &mdash; the
           place, the flow, the mood, the moment, and the backup &mdash; so you can spend
           less time figuring it out and more time making it feel personal.
         </p>
-        <div className="hero-actions" style={{ justifyContent: "center" }}>
+        <div className="hero-actions">
           <a className="btn btn-accent" href="#today">See today&rsquo;s ideas</a>
           <Link className="btn btn-ghost" href="/club">Join the Club</Link>
         </div>
-        <form
-          className="email-cap"
-          action={subscribe}
-          style={{ marginInline: "auto", marginTop: 18 }}
-        >
+        <form className="email-cap" action={subscribe}>
           <input
             type="email"
             name="email"
