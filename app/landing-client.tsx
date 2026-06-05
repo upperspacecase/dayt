@@ -53,7 +53,7 @@ export default function LandingClient({
         {hero && (
           <article className="hero-card">
             <Plate tint={hero.tint} scrim />
-            <div className="hero-card-inner">
+            <div className="card-body">
               <div className="card-date" key={hero.id} onClick={() => router.push(`/dates/${hero.id}`)}>
                 <div className="p-kicker">{hero.area} &middot; {hero.vibe}</div>
                 <h3 className="ptitle">{hero.title}</h3>

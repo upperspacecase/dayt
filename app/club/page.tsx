@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SignInButton, GoogleOneTap, useUser } from "@clerk/nextjs";
 import Plate from "../plate";
 import ShareOverlay from "../share-overlay";
 import { CONCEPTS, FILTERS, type Concept } from "../dates";
 import { SendIcon, LockIcon } from "../icons";
+
+const CLERK_ON = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 const FIELD: Record<string, keyof Concept> = {
   Area: "area",
@@ -50,27 +53,19 @@ function GCard({
   );
 }
 
-export default function Club() {
+// The members' experience — the full filterable library.
+function Library() {
   const router = useRouter();
-  const [member, setMember] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [active, setActive] = useState<Record<string, string[]>>({});
   const [share, setShare] = useState<Concept | null>(null);
   const [userConcepts, setUserConcepts] = useState<Concept[]>([]);
 
   useEffect(() => {
-    setMember(localStorage.getItem("dk_club") === "true");
     fetch("/api/concepts")
       .then((r) => r.json())
       .then((d) => setUserConcepts(Array.isArray(d) ? d : []))
       .catch(() => {});
   }, []);
-
-  function join() {
-    localStorage.setItem("dk_club", "true");
-    setMember(true);
-    setShowModal(false);
-  }
 
   function toggle(group: string, val: string) {
     setActive((prev) => {
@@ -95,56 +90,13 @@ export default function Club() {
   const open = (c: Concept) =>
     router.push(c.id.startsWith("u_") ? `/concept/${c.id}` : `/dates/${c.id}`);
 
-  if (!member) {
-    return (
-      <main className="club">
-        <div className="wrap-wide">
-          <div className="club-head">
-            <div className="lockline"><LockIcon /> Members&rsquo; library</div>
-            <h1 className="club-title">The whole library.</h1>
-            <p className="club-sub">
-              Each concept we&rsquo;ve dreamt up &mdash; unlimited, and filtered down to your
-              neighborhood, your budget, your kind of night. Free while we&rsquo;re testing.
-            </p>
-            <button
-              className="btn btn-accent"
-              style={{ marginTop: 22 }}
-              onClick={() => setShowModal(true)}
-            >
-              Join the Club &mdash; free while we test
-            </button>
-          </div>
-
-          <div style={{ position: "relative" }}>
-            <div
-              className="club-grid"
-              style={{ filter: "blur(7px)", opacity: 0.6, pointerEvents: "none", userSelect: "none" }}
-            >
-              {CONCEPTS.slice(0, 6).map((c, i) => (
-                <div className={"gcard " + HEIGHTS[i % HEIGHTS.length]} key={c.id}>
-                  <Plate tint={c.tint} scrim />
-                  <div className="gbody">
-                    <div className="gkicker">{c.area} &middot; {c.vibe}</div>
-                    <h3>{c.title}</h3>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {showModal && <JoinModal onJoin={join} onClose={() => setShowModal(false)} />}
-      </main>
-    );
-  }
-
   return (
     <main className="club">
       <div className="wrap-wide club-head">
         <div className="lockline"><LockIcon /> Members&rsquo; library</div>
         <h1 className="club-title">The whole library, open.</h1>
         <p className="club-sub">
-          Each concept we&rsquo;ve dreamt up &mdash; unlimited, and filtered down to your
+          Each idea we&rsquo;ve dreamt up &mdash; unlimited, and filtered down to your
           neighborhood, your budget, your kind of night. Pick a thread and pull.
         </p>
       </div>
@@ -210,6 +162,91 @@ export default function Club() {
       {share && <ShareOverlay concept={share} onClose={() => setShare(null)} />}
     </main>
   );
+}
+
+// The locked door — a blurred peek and a way in.
+function Locked({ oneTap, cta }: { oneTap?: boolean; cta: React.ReactNode }) {
+  return (
+    <main className="club">
+      <div className="wrap-wide">
+        <div className="club-head">
+          <div className="lockline"><LockIcon /> Members&rsquo; library</div>
+          <h1 className="club-title">The whole library.</h1>
+          <p className="club-sub">
+            Every idea we&rsquo;ve dreamt up &mdash; unlimited, and filtered down to your
+            neighborhood, your budget, your kind of night. Free while we&rsquo;re testing.
+          </p>
+          {oneTap ? <GoogleOneTap /> : null}
+          <div style={{ marginTop: 22 }}>{cta}</div>
+        </div>
+
+        <div style={{ position: "relative" }}>
+          <div
+            className="club-grid"
+            style={{ filter: "blur(7px)", opacity: 0.6, pointerEvents: "none", userSelect: "none" }}
+          >
+            {CONCEPTS.slice(0, 6).map((c, i) => (
+              <div className={"gcard " + HEIGHTS[i % HEIGHTS.length]} key={c.id}>
+                <Plate tint={c.tint} scrim />
+                <div className="gbody">
+                  <div className="gkicker">{c.area} &middot; {c.vibe}</div>
+                  <h3>{c.title}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+// Clerk gate: signing in is membership.
+function ClerkGate() {
+  const { isLoaded, isSignedIn } = useUser();
+  if (!isLoaded) {
+    return (
+      <main className="club">
+        <div className="wrap-wide club-head">
+          <p className="club-sub">Loading&hellip;</p>
+        </div>
+      </main>
+    );
+  }
+  if (isSignedIn) return <Library />;
+  return (
+    <Locked
+      oneTap
+      cta={
+        <SignInButton mode="modal">
+          <button className="btn btn-accent">Sign in with Google &mdash; free while we test</button>
+        </SignInButton>
+      }
+    />
+  );
+}
+
+// Fallback when Clerk's keys aren't set (local dev): the old localStorage gate.
+function LocalGate() {
+  const [member, setMember] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  useEffect(() => { setMember(localStorage.getItem("dk_club") === "true"); }, []);
+  function join() {
+    localStorage.setItem("dk_club", "true");
+    setMember(true);
+    setShowModal(false);
+  }
+  if (member) return <Library />;
+  return (
+    <>
+      <Locked cta={<button className="btn btn-accent" onClick={() => setShowModal(true)}>Join the Club &mdash; free while we test</button>} />
+      {showModal && <JoinModal onJoin={join} onClose={() => setShowModal(false)} />}
+    </>
+  );
+}
+
+export default function Club() {
+  return CLERK_ON ? <ClerkGate /> : <LocalGate />;
 }
 
 function JoinModal({ onJoin, onClose }: { onJoin: () => void; onClose: () => void }) {

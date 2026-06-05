@@ -273,27 +273,36 @@ image-slot::part(empty){
 .home-hero-join.secondary:hover{ color:var(--accent); }
 
 .hero-card{
-  position:relative; margin:clamp(26px,4vh,46px) auto 0;
-  width:min(440px,92vw);
-  border-radius:24px; overflow:hidden; background:#241a1f;
-  box-shadow:0 50px 110px -34px rgba(43,18,30,0.6), 0 0 0 1px rgba(255,255,255,0.32);
+  position:absolute; left:50%; bottom:0; transform:translateX(-50%);
+  z-index:3; width:min(380px,84vw); height:min(60vh,580px);
+  border-radius:26px 26px 0 0; overflow:hidden; background:#241a1f;
+  box-shadow:0 50px 110px -34px rgba(43,18,30,0.6), 0 0 0 1px rgba(255,255,255,0.4);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1);
 }
+.hero-card:hover{ transform:translateX(-50%) translateY(-7px); }
 .hero-card .plate{ position:absolute; inset:0; }
-.hero-card-inner{ position:relative; z-index:2; padding:26px 24px 24px; }
+.hero-card .card-body{
+  position:absolute; inset:0; z-index:2;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding:24px 24px 28px;
+}
 .card-date{ cursor:pointer; animation:cardRise .5s ease; }
 @keyframes cardRise{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
 .card-date .p-kicker{ color:rgba(255,255,255,0.85); letter-spacing:0.14em; text-transform:uppercase; font-size:11px; }
-.card-date .ptitle{ color:#fff; font-family:var(--font-display); font-weight:600; font-size:clamp(26px,3.4vw,34px); line-height:1.05; letter-spacing:var(--display-tight); margin:6px 0 0; }
+.card-date .ptitle{ color:#fff; font-family:var(--font-display); font-weight:600; font-size:clamp(26px,3.2vw,34px); line-height:1.05; letter-spacing:var(--display-tight); margin:6px 0 0; }
 .card-date .pmoment{ color:rgba(255,255,255,0.92); font-size:14.5px; line-height:1.5; margin:8px 0 0; }
-.card-email{ margin-top:22px; border-top:1px solid rgba(255,255,255,0.18); padding-top:18px; }
-.card-email-label{ display:block; color:rgba(255,255,255,0.82); font-size:12.5px; margin-bottom:10px; }
+.card-email{ margin-top:18px; border-top:1px solid rgba(255,255,255,0.18); padding-top:16px; }
+.card-email-label{ display:block; color:rgba(255,255,255,0.82); font-size:12.5px; margin-bottom:9px; }
 .card-email-row{ display:flex; gap:8px; }
-.card-email input{ flex:1; height:44px; border-radius:10px; border:1px solid rgba(255,255,255,0.28); background:rgba(255,255,255,0.12); color:#fff; padding:0 14px; font-size:14px; font-family:var(--font-body); min-width:0; }
+.card-email input{ flex:1; height:42px; border-radius:10px; border:1px solid rgba(255,255,255,0.28); background:rgba(255,255,255,0.12); color:#fff; padding:0 14px; font-size:14px; font-family:var(--font-body); min-width:0; }
 .card-email input::placeholder{ color:rgba(255,255,255,0.6); }
 .card-email input:focus{ outline:none; border-color:rgba(255,255,255,0.6); }
 
 @media (max-width:720px){
   .home-hero{ min-height:auto; padding-top:52px; }
+  .hero-card{ position:relative; left:auto; bottom:auto; transform:none; margin:30px auto 0; width:min(340px,88vw); height:auto; border-radius:24px; }
+  .hero-card:hover{ transform:none; }
+  .hero-card .card-body{ position:relative; inset:auto; justify-content:flex-start; }
 }
 
 /* ============================================================
