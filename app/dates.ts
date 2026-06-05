@@ -18,6 +18,8 @@ export type Concept = {
   backup: string;
   creator?: string; // who made/curated it (user or sourced creator)
   credit?: string;  // link back to the source/creator — always credit
+  source?: "seed" | "creator" | "engine"; // where it came from
+  status?: "draft" | "published";         // engine output starts as draft, awaits review
 };
 
 export const CONCEPTS: Concept[] = [
