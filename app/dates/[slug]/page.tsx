@@ -15,9 +15,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const d = findDate(slug);
-  if (!d) return { title: "Not found — Dayt" };
+  if (!d) return { title: "Not found — Dayt Knight" };
   return {
-    title: `${d.title} — Dayt`,
+    title: `${d.title} — Dayt Knight`,
     description: d.desc,
   };
 }
@@ -39,7 +39,7 @@ export default async function DatePage({
           className="inline-block text-3xl sm:text-4xl tracking-tight"
           style={{ fontFamily: "var(--font-serif)" }}
         >
-          Dayt
+          Dayt Knight
         </Link>
       </header>
 

@@ -16,9 +16,9 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Dayt — Real dates, in your city",
+  title: "Dayt Knight — Real New York dates, from people who live here",
   description:
-    "Real dates, in your city, created by people who live there.",
+    "Three New York date ideas in your inbox every week, free. Plus full date plans from locals who actually go on them.",
 };
 
 export default function RootLayout({
