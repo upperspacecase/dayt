@@ -132,6 +132,11 @@ button{ font-family:inherit; }
 }
 .nav a:hover{ color:var(--ink); }
 .nav a.active{ color:var(--ink); background:var(--line-soft); }
+.nav-toggle{
+  display:none; align-items:center; justify-content:center;
+  width:42px; height:42px; border:1px solid var(--line); border-radius:12px;
+  background:var(--surface); color:var(--ink); cursor:pointer; flex:none;
+}
 
 /* ---- Buttons ---- */
 .btn{
@@ -581,13 +586,22 @@ image-slot::part(empty){
   .share-modal{ flex-direction:column; gap:22px; align-items:center; }
   .share-card{ height:min(56vh,440px); }
   .share-actions{ width:340px; }
-  .nav .nav-hide{ display:none; }
 }
 @media (max-width:720px){
   .triptych{ grid-template-columns:1fr; }
   .poster{ aspect-ratio:3/3.6; }
   .club-grid{ columns:2; }
   .related-grid{ grid-template-columns:1fr; }
+  .nav-toggle{ display:inline-flex; }
+  .nav{ display:none; }
+  .nav.open{
+    display:flex; flex-direction:column; align-items:stretch; gap:4px;
+    position:absolute; top:70px; left:0; right:0;
+    background:var(--surface); border-bottom:1px solid var(--line);
+    padding:12px 5vw 20px; box-shadow:0 30px 60px -30px rgba(43,18,30,0.45);
+  }
+  .nav.open a{ padding:12px 14px; }
+  .nav.open .btn{ margin-left:0 !important; margin-top:6px; }
 }
 @media (max-width:560px){
   .club-grid{ columns:1; }

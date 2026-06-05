@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MoonIcon } from "./icons";
 
 export default function SiteFooter() {
+  const pathname = usePathname();
+  if (pathname === "/") return null; // landing is hero-only
   return (
     <footer className="site-foot">
       <div className="wrap-wide foot-grid">
