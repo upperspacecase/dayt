@@ -39,7 +39,21 @@ export default function RootLayout({
       </head>
       <body>
         {/* ClerkProvider wraps the app once its keys are set — site runs untouched until then. */}
-        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? <ClerkProvider>{app}</ClerkProvider> : app}
+        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? (
+          <ClerkProvider
+            appearance={{
+              variables: {
+                colorPrimary: "#DE4D86",
+                borderRadius: "12px",
+                fontFamily: "Inter, system-ui, sans-serif",
+              },
+            }}
+          >
+            {app}
+          </ClerkProvider>
+        ) : (
+          app
+        )}
       </body>
     </html>
   );
