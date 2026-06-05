@@ -242,7 +242,7 @@ image-slot::part(empty){
 }
 .home-hero-bg{
   position:absolute; inset:0; z-index:-3;
-  background:var(--bg-2) url("/dayt-couple.jpg") center 44% / cover no-repeat;
+  background:var(--bg-2) url("/dayt-hero.png") center 50% / cover no-repeat;
 }
 .home-hero-scrim{
   position:absolute; inset:0; z-index:-2;
