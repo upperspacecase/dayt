@@ -12,19 +12,35 @@ const ENERGY = ["Low-key", "Lively", "Adventurous"];
 const STAGE = ["First date", "Something new", "Long-haul"];
 const TINTS = ["#E8A06A", "#C7553B", "#D98841", "#B06A7E", "#9A6B8A", "#7E9B5F", "#5E83A6", "#C98A53"];
 
-export const SYSTEM = `You write complete date concepts for Dayt Knight — a curated guide to dating in New York City.
+export const SYSTEM = `You write date ideas for Dayt Knight — a curated guide to dating in New York City.
 
-Your job: read inspiration sourced from a real NYC date writer, learn the PATTERN of the kind of night they're good at, then write your own original concepts. Never reuse their spots or their words — invent a complete night that stands on its own.
+Read what's given (a writer's piece, or an events listing) and write your own original ideas. Never reuse their words. Keep each idea SIMPLE: one or two sentences someone could act on this week. Not an itinerary — one good move.
 
-What a concept is: the whole night, planned. A specific place, a timed arc of three beats, the one moment that makes it, what to bring, and a rain backup. Specific always wins — name the hour, the corner, the detail ("the 7:40 tram", not "a scenic ride").
+THE REMIX BANK — your secret sauce. An ordinary outing becomes a real date when you add one of these moves:
+- make something together
+- become characters
+- add a constraint
+- compare or rank things
+- create a souvenir
+- let chance decide
+- do a tiny mission
+- learn badly together
+- pair two unrelated activities
+- add a secret prompt
+- make it competitive
+- make it ceremonial
 
-The craft underneath (never name it to the reader — it should only feel like magic): build for connection. Shared novelty and a little adventure pull two people closer; give the night one peak moment they'll both remember; design beats where they turn toward each other instead of a screen.
+Take a specific NYC place or a real upcoming event and apply one or two moves so a normal thing becomes a better date. For example —
+  Plain: "Go to a bookstore."
+  Remixed: "Each of you buys the other a book based only on its cover, then you read the first page to each other over coffee."
 
-Voice: premium, warm, confident. No emojis. Never use the words "cheap", "every", "actually", "truly", "simply", or "just". Don't anchor on price or compare to staying in.`;
+When the source is an events listing, build the idea around a specific, real, named upcoming event and remix it.
+
+Be specific — name the place, the neighborhood, the move. Voice: premium, warm, confident. No emojis. Never use the words "cheap", "every", "actually", "truly", "simply", or "just". Don't anchor on price or compare to staying in.`;
 
 export const TOOL = {
   name: "emit_concepts",
-  description: "Return the original date concepts you wrote.",
+  description: "Return the original, remixed date ideas you wrote.",
   input_schema: {
     type: "object",
     properties: {
@@ -33,29 +49,15 @@ export const TOOL = {
         items: {
           type: "object",
           properties: {
-            title: { type: "string", description: "Evocative and specific. Not 'Fun Date Night'." },
+            title: { type: "string", description: "Short and evocative. Names the place or the move." },
+            idea: { type: "string", description: "One or two sentences — what you actually do, with the remix that makes it a date. Specific." },
             area: { type: "string", description: "A specific NYC neighborhood, e.g. Greenpoint." },
             vibe: { type: "string", enum: VIBE },
             budget: { type: "string", enum: BUDGET },
             energy: { type: "string", enum: ENERGY },
             stage: { type: "string", enum: STAGE },
-            timing: { type: "string", description: "When to go, specific. 'Friday, arrive by 7:10pm'." },
-            hook: { type: "string", description: "One line that sells the night." },
-            arc: {
-              type: "array",
-              description: "Three beats, in order.",
-              items: {
-                type: "object",
-                properties: { t: { type: "string" }, d: { type: "string" } },
-                required: ["t", "d"],
-              },
-            },
-            moment: { type: "string", description: "The single peak moment of the night." },
-            spot: { type: "string", description: "The specific place." },
-            bring: { type: "string" },
-            backup: { type: "string", description: "What to do if it rains." },
           },
-          required: ["title", "area", "vibe", "budget", "energy", "stage", "timing", "hook", "arc", "moment", "spot", "bring", "backup"],
+          required: ["title", "idea", "area", "vibe", "budget", "energy", "stage"],
         },
       },
     },
@@ -63,8 +65,7 @@ export const TOOL = {
   },
 };
 
-// Ask Claude for original concepts inspired by one source. Returns a concept array.
-export async function generateConcepts(item, apiKey, count = 2) {
+export async function generateConcepts(item, apiKey, count = 3) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -74,13 +75,13 @@ export async function generateConcepts(item, apiKey, count = 2) {
     },
     body: JSON.stringify({
       model: "claude-opus-4-8",
-      max_tokens: 8000,
+      max_tokens: 4000,
       system: SYSTEM,
       tools: [TOOL],
       tool_choice: { type: "tool", name: "emit_concepts" },
       messages: [{
         role: "user",
-        content: `Inspiration from ${item.name} (${item.url}). Learn the pattern of the nights they champion, then write ${count} original NYC date concepts of your own.\n\n---\n${item.text}`,
+        content: `Source: ${item.name} (${item.url}). Write ${count} original, remixed NYC date ideas — apply moves from the remix bank, and if this is an events listing, build them around specific real upcoming events.\n\n---\n${item.text}`,
       }],
     }),
   });
@@ -98,13 +99,19 @@ function tint(seed) {
   return TINTS[h % TINTS.length];
 }
 
-// A generated concept -> a Mongo draft doc, crediting the source it learned from.
+// A generated idea -> a simple Mongo draft, crediting the source it learned from.
 export function toDraft(concept, item, suffix) {
   const slug = concept.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
   return {
-    ...concept,
     id: `u_eng-${slug}-${Date.now().toString(36)}-${suffix}`,
+    title: concept.title,
+    area: concept.area,
+    vibe: concept.vibe,
+    budget: concept.budget,
+    energy: concept.energy,
+    stage: concept.stage,
     tint: tint(concept.title),
+    timing: "", hook: concept.idea, arc: [], spot: "", moment: "", bring: "", backup: "",
     creator: "Dayt Knight",
     credit: item.url,
     source: "engine",
