@@ -1,43 +1,59 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { dates } from "../dates";
-import ConceptCard from "../concept-card";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Plate from "../plate";
+import ShareOverlay from "../share-overlay";
+import { CONCEPTS, FILTERS, type Concept } from "../dates";
+import { SendIcon, LockIcon } from "../icons";
 
-const ENERGY = ["Low-key", "Active", "Hands-on"];
-const STAGE = ["New", "Together a while", "Either"];
+const FIELD: Record<string, keyof Concept> = {
+  Area: "area",
+  Vibe: "vibe",
+  Budget: "budget",
+  Energy: "energy",
+  Stage: "stage",
+};
+const HEIGHTS = ["h-tall", "h-mid", "h-short", "h-mid", "h-tall", "h-short"];
 
-function Chip({
-  label,
-  active,
-  onClick,
+function GCard({
+  c,
+  h,
+  onOpen,
+  onShare,
 }: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
+  c: Concept;
+  h: string;
+  onOpen: () => void;
+  onShare: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`px-4 h-9 rounded-full text-sm border transition-colors ${
-        active
-          ? "bg-foreground text-background border-foreground"
-          : "border-foreground/20 text-foreground/75 hover:border-foreground/40"
-      }`}
-    >
-      {label}
-    </button>
+    <article className={"gcard " + h} onClick={onOpen}>
+      <Plate tint={c.tint} scrim />
+      <div className="gbody">
+        <div className="gkicker">{c.area} &middot; {c.vibe}</div>
+        <h3>{c.title}</h3>
+        <div className="gfoot">
+          <span className="gmeta">{c.budget} &middot; {c.energy}</span>
+          <button
+            className="gshare"
+            onClick={(e) => { e.stopPropagation(); onShare(); }}
+            aria-label="Send"
+          >
+            <SendIcon />
+          </button>
+        </div>
+      </div>
+    </article>
   );
 }
 
 export default function Club() {
+  const router = useRouter();
   const [member, setMember] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [q, setQ] = useState("");
-  const [energy, setEnergy] = useState<string[]>([]);
-  const [stage, setStage] = useState<string[]>([]);
+  const [active, setActive] = useState<Record<string, string[]>>({});
+  const [share, setShare] = useState<Concept | null>(null);
 
   useEffect(() => {
     setMember(localStorage.getItem("dk_club") === "true");
@@ -49,180 +65,176 @@ export default function Club() {
     setShowModal(false);
   }
 
-  function toggle(
-    list: string[],
-    setList: (v: string[]) => void,
-    v: string,
-  ) {
-    setList(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
+  function toggle(group: string, val: string) {
+    setActive((prev) => {
+      const cur = new Set(prev[group] || []);
+      if (cur.has(val)) cur.delete(val);
+      else cur.add(val);
+      return { ...prev, [group]: [...cur] };
+    });
+  }
+  const clearAll = () => setActive({});
+  const activeCount = Object.values(active).reduce((s, a) => s + (a ? a.length : 0), 0);
+
+  const shown = CONCEPTS.filter((c) =>
+    Object.keys(FIELD).every((group) => {
+      const sel = active[group];
+      if (!sel || !sel.length) return true;
+      return sel.includes(c[FIELD[group]] as string);
+    }),
+  );
+
+  if (!member) {
+    return (
+      <main className="club">
+        <div className="wrap-wide club-head">
+          <div className="lockline"><LockIcon /> Members&rsquo; library</div>
+          <h1 className="club-title">The whole library.</h1>
+          <p className="club-sub">
+            Each concept we&rsquo;ve dreamt up &mdash; unlimited, and filtered down to your
+            neighborhood, your budget, your kind of night. Free while we&rsquo;re testing.
+          </p>
+          <button
+            className="btn btn-accent"
+            style={{ marginTop: 22 }}
+            onClick={() => setShowModal(true)}
+          >
+            Join the Club &mdash; free while we test
+          </button>
+        </div>
+
+        <div className="wrap-wide" style={{ position: "relative" }}>
+          <div
+            className="club-grid"
+            style={{ filter: "blur(7px)", opacity: 0.6, pointerEvents: "none", userSelect: "none" }}
+          >
+            {CONCEPTS.slice(0, 6).map((c, i) => (
+              <div className={"gcard " + HEIGHTS[i % HEIGHTS.length]} key={c.id}>
+                <Plate tint={c.tint} scrim />
+                <div className="gbody">
+                  <div className="gkicker">{c.area} &middot; {c.vibe}</div>
+                  <h3>{c.title}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {showModal && <JoinModal onJoin={join} onClose={() => setShowModal(false)} />}
+      </main>
+    );
   }
 
-  const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    return dates.filter((d) => {
-      const hay =
-        `${d.title} ${d.desc} ${d.location} ${d.tags.join(" ")}`.toLowerCase();
-      if (needle && !hay.includes(needle)) return false;
-      if (energy.length && !energy.includes(d.energy)) return false;
-      if (stage.length && !stage.includes(d.stage)) return false;
-      return true;
-    });
-  }, [q, energy, stage]);
-
   return (
-    <div className="flex flex-col flex-1 bg-background text-foreground">
-      <header className="px-8 sm:px-14 pt-8 sm:pt-10">
-        <Link
-          href="/"
-          className="inline-block text-3xl sm:text-4xl tracking-tight"
-          style={{ fontFamily: "var(--font-serif)" }}
-        >
-          Dayt Knight
-        </Link>
-      </header>
+    <main className="club">
+      <div className="wrap-wide club-head">
+        <div className="lockline"><LockIcon /> Members&rsquo; library</div>
+        <h1 className="club-title">The whole library, open.</h1>
+        <p className="club-sub">
+          Each concept we&rsquo;ve dreamt up &mdash; unlimited, and filtered down to your
+          neighborhood, your budget, your kind of night. Pick a thread and pull.
+        </p>
+      </div>
 
-      <main className="flex-1 flex flex-col items-center px-6 sm:px-12 mt-12 sm:mt-16 w-full">
-        {!member ? (
-          <div className="w-full max-w-3xl text-center">
-            <h1
-              className="text-4xl sm:text-6xl tracking-tight leading-[1.05]"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              The whole library.
-            </h1>
-            <p className="mt-5 text-lg sm:text-xl text-foreground/70 leading-relaxed max-w-2xl mx-auto">
-              Unlimited dates, filtered to your neighborhood, your energy, your
-              moment. The daily three are the taste. This is the rest.
-            </p>
-            <button
-              type="button"
-              onClick={() => setShowModal(true)}
-              className="mt-8 h-14 px-8 rounded-md bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors text-base"
-            >
-              Join the Club — free while we test
-            </button>
+      <div className="filters">
+        <div className="wrap-wide frow">
+          {Object.keys(FILTERS).map((group, gi) => (
+            <span key={group} style={{ display: "contents" }}>
+              {gi > 0 ? <span className="fdiv" /> : null}
+              <div className="filter-group">
+                <span className="glabel">{group}</span>
+                {FILTERS[group].map((val) => {
+                  const on = (active[group] || []).includes(val);
+                  return (
+                    <button
+                      key={val}
+                      className={"fchip" + (on ? " on" : "")}
+                      onClick={() => toggle(group, val)}
+                    >
+                      {val}
+                    </button>
+                  );
+                })}
+              </div>
+            </span>
+          ))}
+          {activeCount ? (
+            <>
+              <span className="fdiv" />
+              <span className="clearf" onClick={clearAll}>Clear ({activeCount})</span>
+            </>
+          ) : null}
+        </div>
+      </div>
 
-            <div className="relative mt-14">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6 blur-[6px] opacity-70 pointer-events-none select-none">
-                {dates.slice(0, 6).map((c) => (
-                  <ConceptCard key={c.slug} c={c} />
-                ))}
-              </div>
-              <div className="absolute inset-0 flex items-start justify-center pt-16">
-                <p className="text-foreground/70 text-base bg-background/70 rounded-md px-4 py-2">
-                  Join to open all {dates.length} and filter.
-                </p>
-              </div>
-            </div>
+      <div className="wrap-wide">
+        {shown.length ? (
+          <div className="club-grid">
+            {shown.map((c, i) => (
+              <GCard
+                key={c.id}
+                c={c}
+                h={HEIGHTS[i % HEIGHTS.length]}
+                onOpen={() => router.push(`/dates/${c.id}`)}
+                onShare={() => setShare(c)}
+              />
+            ))}
           </div>
         ) : (
-          <div className="w-full max-w-6xl">
-            <div className="max-w-2xl">
-              <h1
-                className="text-4xl sm:text-6xl tracking-tight leading-[1.05]"
-                style={{ fontFamily: "var(--font-serif)" }}
-              >
-                The whole library
-              </h1>
-              <p className="mt-3 text-foreground/70 text-base sm:text-lg">
-                Filter to what tonight needs.
-              </p>
-            </div>
-
-            <div className="mt-8 flex flex-col gap-4">
-              <input
-                type="text"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search a neighborhood, a vibe, a word…"
-                className="h-12 px-4 rounded-md bg-transparent border border-foreground/15 placeholder:text-foreground/40 focus:outline-none focus:border-foreground/40 transition-colors max-w-xl"
-              />
-              <div className="flex flex-wrap gap-2">
-                {ENERGY.map((e) => (
-                  <Chip
-                    key={e}
-                    label={e}
-                    active={energy.includes(e)}
-                    onClick={() => toggle(energy, setEnergy, e)}
-                  />
-                ))}
-                <span className="w-px h-9 bg-foreground/10 mx-1" />
-                {STAGE.map((s) => (
-                  <Chip
-                    key={s}
-                    label={s}
-                    active={stage.includes(s)}
-                    onClick={() => toggle(stage, setStage, s)}
-                  />
-                ))}
-              </div>
-              <p className="text-sm text-foreground/55">
-                Showing {filtered.length} of {dates.length}.
-              </p>
-            </div>
-
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-              {filtered.map((c) => (
-                <ConceptCard key={c.slug} c={c} />
-              ))}
-            </div>
-            {filtered.length === 0 && (
-              <p className="mt-10 text-foreground/60">
-                Nothing matches that yet. Loosen a filter.
-              </p>
-            )}
+          <div className="empty-state">
+            <div className="es-title">Nothing matches &mdash; yet.</div>
+            <p>
+              Loosen a filter, or{" "}
+              <span style={{ color: "var(--accent)", cursor: "pointer" }} onClick={clearAll}>
+                clear them all
+              </span>{" "}
+              and browse the full shelf.
+            </p>
           </div>
         )}
-      </main>
+      </div>
 
-      {showModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 px-6"
-          onClick={() => setShowModal(false)}
+      {share && <ShareOverlay concept={share} onClose={() => setShare(null)} />}
+    </main>
+  );
+}
+
+function JoinModal({ onJoin, onClose }: { onJoin: () => void; onClose: () => void }) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 100,
+        background: "rgba(8,5,3,0.6)", backdropFilter: "blur(10px)",
+        display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "100%", maxWidth: 440, background: "var(--surface)",
+          border: "1px solid var(--line)", borderRadius: 14, padding: 34,
+          boxShadow: "0 40px 90px -30px rgba(0,0,0,0.6)",
+        }}
+      >
+        <h2
+          className="serif"
+          style={{ fontSize: 32, lineHeight: 1.04, letterSpacing: "var(--display-tight)", margin: 0 }}
         >
-          <div
-            className="w-full max-w-md rounded-md bg-background p-7 sm:p-8 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2
-              className="text-2xl sm:text-3xl tracking-tight"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              This is where the Stripe checkout flow will be.
-            </h2>
-            <p className="mt-3 text-foreground/70 leading-relaxed">
-              Free while we test. Click OK and come on in.
-            </p>
-            <div className="mt-7 flex gap-3">
-              <button
-                type="button"
-                onClick={join}
-                className="h-12 px-7 rounded-md bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors"
-              >
-                OK
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="h-12 px-5 rounded-md border border-foreground/20 text-foreground/75 hover:border-foreground/40 transition-colors"
-              >
-                Not yet
-              </button>
-            </div>
-          </div>
+          This is where the Stripe checkout flow will be.
+        </h2>
+        <p style={{ color: "var(--ink-soft)", margin: "14px 0 26px", lineHeight: 1.5 }}>
+          Free while we test. Click OK and come on in.
+        </p>
+        <div style={{ display: "flex", gap: 12 }}>
+          <button className="btn btn-accent" onClick={onJoin}>OK</button>
+          <button className="btn btn-ghost" onClick={onClose}>Not yet</button>
         </div>
-      )}
-
-      <footer className="mt-16 sm:mt-24 border-t border-foreground/10">
-        <div className="max-w-6xl mx-auto px-6 sm:px-12 py-7 flex justify-center gap-14">
-          <Link
-            href="/"
-            className="text-foreground/85 hover:text-foreground transition-colors"
-          >
-            Home
-          </Link>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }
