@@ -20,6 +20,12 @@ export async function conceptsCol(): Promise<Collection<StoredConcept>> {
   return c.db(process.env.MONGODB_DB || "daytknight").collection<StoredConcept>("concepts");
 }
 
+// Stored creator/editorial inspiration the nightly engine cron generates from.
+export async function inspirationCol(): Promise<Collection<{ name: string; url: string; credit: string; text: string }>> {
+  const c = await client();
+  return c.db(process.env.MONGODB_DB || "daytknight").collection("inspiration");
+}
+
 // Drop Mongo's _id so the client gets a clean Concept.
 export function clean(doc: Record<string, unknown> | null): Concept | null {
   if (!doc) return null;
