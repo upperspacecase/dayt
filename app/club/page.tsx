@@ -92,41 +92,43 @@ export default function Club() {
   );
 
   const open = (c: Concept) =>
-    c.id.startsWith("u_") ? setShare(c) : router.push(`/dates/${c.id}`);
+    router.push(c.id.startsWith("u_") ? `/concept/${c.id}` : `/dates/${c.id}`);
 
   if (!member) {
     return (
       <main className="club">
-        <div className="wrap-wide club-head">
-          <div className="lockline"><LockIcon /> Members&rsquo; library</div>
-          <h1 className="club-title">The whole library.</h1>
-          <p className="club-sub">
-            Each concept we&rsquo;ve dreamt up &mdash; unlimited, and filtered down to your
-            neighborhood, your budget, your kind of night. Free while we&rsquo;re testing.
-          </p>
-          <button
-            className="btn btn-accent"
-            style={{ marginTop: 22 }}
-            onClick={() => setShowModal(true)}
-          >
-            Join the Club &mdash; free while we test
-          </button>
-        </div>
+        <div className="wrap-wide">
+          <div className="club-head">
+            <div className="lockline"><LockIcon /> Members&rsquo; library</div>
+            <h1 className="club-title">The whole library.</h1>
+            <p className="club-sub">
+              Each concept we&rsquo;ve dreamt up &mdash; unlimited, and filtered down to your
+              neighborhood, your budget, your kind of night. Free while we&rsquo;re testing.
+            </p>
+            <button
+              className="btn btn-accent"
+              style={{ marginTop: 22 }}
+              onClick={() => setShowModal(true)}
+            >
+              Join the Club &mdash; free while we test
+            </button>
+          </div>
 
-        <div className="wrap-wide" style={{ position: "relative" }}>
-          <div
-            className="club-grid"
-            style={{ filter: "blur(7px)", opacity: 0.6, pointerEvents: "none", userSelect: "none" }}
-          >
-            {CONCEPTS.slice(0, 6).map((c, i) => (
-              <div className={"gcard " + HEIGHTS[i % HEIGHTS.length]} key={c.id}>
-                <Plate tint={c.tint} scrim />
-                <div className="gbody">
-                  <div className="gkicker">{c.area} &middot; {c.vibe}</div>
-                  <h3>{c.title}</h3>
+          <div style={{ position: "relative" }}>
+            <div
+              className="club-grid"
+              style={{ filter: "blur(7px)", opacity: 0.6, pointerEvents: "none", userSelect: "none" }}
+            >
+              {CONCEPTS.slice(0, 6).map((c, i) => (
+                <div className={"gcard " + HEIGHTS[i % HEIGHTS.length]} key={c.id}>
+                  <Plate tint={c.tint} scrim />
+                  <div className="gbody">
+                    <div className="gkicker">{c.area} &middot; {c.vibe}</div>
+                    <h3>{c.title}</h3>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 

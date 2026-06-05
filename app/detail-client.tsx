@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Plate from "./plate";
 import ShareOverlay from "./share-overlay";
@@ -16,7 +17,19 @@ export default function DetailClient({
   related: Concept[];
 }) {
   const [share, setShare] = useState<Concept | null>(null);
+  const [saved, setSaved] = useState(false);
   const router = useRouter();
+
+  function save() {
+    try {
+      const list: Concept[] = JSON.parse(localStorage.getItem("dk_saved") || "[]");
+      if (!list.find((x) => x.id === c.id)) {
+        list.unshift(c);
+        localStorage.setItem("dk_saved", JSON.stringify(list));
+      }
+      setSaved(true);
+    } catch {}
+  }
 
   return (
     <main className="detail">
@@ -73,6 +86,24 @@ export default function DetailClient({
                 <MetaChips items={[c.budget, c.energy, c.stage]} />
               </div>
             </div>
+            {c.creator ? (
+              <div className="fact">
+                <div className="ft">By</div>
+                <div className="fv">
+                  <Link href={`/creator/${encodeURIComponent(c.creator)}`} style={{ color: "var(--accent)" }}>
+                    {c.creator}
+                  </Link>
+                  {c.credit ? (
+                    <>
+                      {" "}&middot;{" "}
+                      <a href={c.credit} target="_blank" rel="noreferrer" style={{ color: "var(--ink-soft)" }}>
+                        their link
+                      </a>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
             <div className="send-cta">
               <button
                 className="btn btn-accent"
@@ -81,8 +112,8 @@ export default function DetailClient({
               >
                 <SendIcon style={{ width: 16, height: 16 }} /> Send this to someone
               </button>
-              <button className="btn btn-ghost" style={{ justifyContent: "center" }}>
-                <HeartIcon style={{ width: 16, height: 16 }} /> Save for later
+              <button className="btn btn-ghost" onClick={save} style={{ justifyContent: "center" }}>
+                <HeartIcon style={{ width: 16, height: 16 }} /> {saved ? "Saved" : "Save for later"}
               </button>
             </div>
           </aside>

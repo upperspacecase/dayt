@@ -401,7 +401,8 @@ image-slot::part(empty){
 /* ============================================================
    CLUB FEED
    ============================================================ */
-.club-head{ padding:clamp(30px,4vw,64px) 0 clamp(22px,3vw,40px); }
+.club-head{ padding:clamp(44px,5vw,84px) 0 clamp(22px,3vw,40px); }
+.club-title{ text-wrap:balance; }
 .club-head .lockline{ display:inline-flex; align-items:center; gap:9px; color:var(--gold); font-size:12px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; margin-bottom:18px; }
 .club-title{ font-family:var(--font-display); font-weight:var(--display-weight); font-size:clamp(40px,6vw,84px); line-height:0.98; letter-spacing:var(--display-tight); margin:0; }
 .club-sub{ font-size:clamp(16px,1.6vw,19px); color:var(--ink-soft); margin:18px 0 0; max-width:54ch; text-wrap:pretty; }

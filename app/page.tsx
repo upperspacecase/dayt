@@ -10,18 +10,12 @@ export default async function Home({
   const subscribed = params.subscribed === "1";
   const errored = typeof params.error !== "undefined";
   const dailyThree = getDailyThree();
-  const todayLabel = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
 
   return (
     <LandingClient
       dailyThree={dailyThree}
       subscribed={subscribed}
       errored={errored}
-      todayLabel={todayLabel}
     />
   );
 }

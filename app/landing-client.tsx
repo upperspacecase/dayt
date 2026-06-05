@@ -13,59 +13,54 @@ export default function LandingClient({
   dailyThree,
   subscribed,
   errored,
-  todayLabel,
 }: {
   dailyThree: Concept[];
   subscribed: boolean;
   errored: boolean;
-  todayLabel: string;
 }) {
   const [share, setShare] = useState<Concept | null>(null);
   const router = useRouter();
 
   return (
     <main className="landing">
-      <section className="wrap-wide masthead">
-        <div className="masthead-grid">
-          <div className="masthead-text">
-            <div className="today-line">
-              <span className="kicker">New York</span>
-              <span className="rule" />
-              <span className="kicker">{todayLabel}</span>
-            </div>
-
-            {subscribed && (
-              <div className="meta-chip" style={{ marginBottom: 20 }}>
-                <span className="dot" /> You&rsquo;re in. Three fresh New York dates land in your inbox, starting tomorrow.
-              </div>
-            )}
-            {errored && (
-              <div className="meta-chip" style={{ marginBottom: 20 }}>
-                <span className="dot" /> That didn&rsquo;t go through. Mind trying again?
-              </div>
-            )}
-
-            <h1 className="hero-title">
-              we all deserve<br /><em>awesome</em> dates
-            </h1>
-            <p className="hero-sub">
-              Dayt Knight helps you discover and build complete date plans &mdash; the
-              place, the flow, the mood, the moment, and the backup &mdash; so you can spend
-              less time figuring it out and more time making it feel personal.
-            </p>
-            <div className="hero-actions">
-              <a className="btn btn-accent" href="#today">See today&rsquo;s ideas</a>
-              <Link className="btn btn-ghost" href="/club">Join the Club</Link>
-            </div>
+      <section className="wrap-wide masthead" style={{ textAlign: "center" }}>
+        {subscribed && (
+          <div className="meta-chip" style={{ marginBottom: 20 }}>
+            <span className="dot" /> You&rsquo;re in. Three fresh New York dates land in your inbox, starting tomorrow.
           </div>
-
-          <div className="masthead-hero">
-            <img
-              src="/dayt-hero-a.jpeg"
-              alt="Two characters on a candlelit date, sharing a milkshake under fairy lights"
-            />
+        )}
+        {errored && (
+          <div className="meta-chip" style={{ marginBottom: 20 }}>
+            <span className="dot" /> That didn&rsquo;t go through. Mind trying again?
           </div>
+        )}
+
+        <h1 className="hero-title" style={{ marginInline: "auto" }}>
+          we all deserve<br /><em>awesome</em> dates
+        </h1>
+        <p className="hero-sub" style={{ marginInline: "auto" }}>
+          Dayt Knight helps you discover and build complete date plans &mdash; the
+          place, the flow, the mood, the moment, and the backup &mdash; so you can spend
+          less time figuring it out and more time making it feel personal.
+        </p>
+        <div className="hero-actions" style={{ justifyContent: "center" }}>
+          <a className="btn btn-accent" href="#today">See today&rsquo;s ideas</a>
+          <Link className="btn btn-ghost" href="/club">Join the Club</Link>
         </div>
+        <form
+          className="email-cap"
+          action={subscribe}
+          style={{ marginInline: "auto", marginTop: 18 }}
+        >
+          <input
+            type="email"
+            name="email"
+            required
+            placeholder="Your email for the daily three"
+            aria-label="Email"
+          />
+          <button type="submit" className="btn btn-accent btn-sm">Send them</button>
+        </form>
       </section>
 
       <section
@@ -113,28 +108,6 @@ export default function LandingClient({
               </div>
             </article>
           ))}
-        </div>
-
-        <div
-          style={{
-            marginTop: "clamp(30px,4vw,56px)",
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
-            flexWrap: "wrap",
-          }}
-        >
-          <span className="kicker">Get the daily three in your inbox</span>
-          <form className="email-cap" action={subscribe}>
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="you@email.com"
-              aria-label="Email"
-            />
-            <button type="submit" className="btn btn-accent btn-sm">Send them</button>
-          </form>
         </div>
       </section>
 

@@ -27,7 +27,8 @@ export default function ShareOverlay({
   }, [onClose]);
 
   async function copy() {
-    const url = `https://daytknight.club/dates/${concept.id}`;
+    const path = concept.creator ? `/concept/${concept.id}` : `/dates/${concept.id}`;
+    const url = `https://daytknight.club${path}`;
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       await navigator.clipboard.writeText(url);
     }

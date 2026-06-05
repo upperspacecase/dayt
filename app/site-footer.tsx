@@ -17,8 +17,12 @@ export default function SiteFooter() {
         <div className="foot-links">
           <Link href="/">Today</Link>
           <Link href="/club">The Club</Link>
-          <Link href="/club">Sell a date</Link>
-          <span>New York</span>
+          <Link href="/create">Create</Link>
+          <Link href="/about">About</Link>
+          <Link href="/concierge">Concierge</Link>
+          <Link href="/saved">Saved</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/privacy">Privacy</Link>
         </div>
       </div>
     </footer>
