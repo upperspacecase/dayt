@@ -20,6 +20,11 @@ export default function DetailClient({
   const [saved, setSaved] = useState(false);
   const router = useRouter();
 
+  const has = (v?: string) => !!v && v.trim() !== "" && v !== "—";
+  const hasArc = Array.isArray(c.arc) && c.arc.length > 0;
+  const hasMoment = has(c.moment);
+  const simple = !hasArc && !hasMoment; // a plain idea, not a full itinerary
+
   function save() {
     try {
       const list: Concept[] = JSON.parse(localStorage.getItem("dk_saved") || "[]");
@@ -44,7 +49,7 @@ export default function DetailClient({
           <div className="d-kicker">
             <span className="kicker eyebrow-accent">{c.area}</span>
             <span className="kicker" style={{ color: "var(--ink-faint)" }}>{c.vibe}</span>
-            <span className="kicker" style={{ color: "var(--ink-faint)" }}>{c.timing}</span>
+            {has(c.timing) ? <span className="kicker" style={{ color: "var(--ink-faint)" }}>{c.timing}</span> : null}
           </div>
           <h1 className="detail-title">{c.title}</h1>
           <p className="detail-hook">{c.hook}</p>
@@ -56,30 +61,36 @@ export default function DetailClient({
       </div>
 
       <div className="wrap">
-        <div className="detail-grid">
-          <div className="detail-main">
-            <section className="arc">
-              <h3>The arc of the night</h3>
-              {c.arc.map((step, i) => (
-                <div className="arc-step" key={i}>
-                  <div className="time">{step.t}</div>
-                  <div className="desc">{step.d}</div>
-                </div>
-              ))}
-            </section>
+        <div className={"detail-grid" + (simple ? " simple" : "")}>
+          {!simple && (
+            <div className="detail-main">
+              {hasArc ? (
+                <section className="arc">
+                  <h3>The arc of the night</h3>
+                  {c.arc.map((step, i) => (
+                    <div className="arc-step" key={i}>
+                      <div className="time">{step.t}</div>
+                      <div className="desc">{step.d}</div>
+                    </div>
+                  ))}
+                </section>
+              ) : null}
 
-            <section className="moment-block">
-              <span className="quote">&rdquo;</span>
-              <div className="lbl">The one moment</div>
-              <p className="mtext">{c.moment}</p>
-            </section>
-          </div>
+              {hasMoment ? (
+                <section className="moment-block">
+                  <span className="quote">&rdquo;</span>
+                  <div className="lbl">The one moment</div>
+                  <p className="mtext">{c.moment}</p>
+                </section>
+              ) : null}
+            </div>
+          )}
 
           <aside className="facts">
-            <div className="fact"><div className="ft">When</div><div className="fv">{c.timing}</div></div>
-            <div className="fact"><div className="ft">The spot</div><div className="fv">{c.spot}</div></div>
-            <div className="fact"><div className="ft">What to bring</div><div className="fv">{c.bring}</div></div>
-            <div className="fact"><div className="ft">If it rains</div><div className="fv">{c.backup}</div></div>
+            {has(c.timing) ? <div className="fact"><div className="ft">When</div><div className="fv">{c.timing}</div></div> : null}
+            {has(c.spot) ? <div className="fact"><div className="ft">The spot</div><div className="fv">{c.spot}</div></div> : null}
+            {has(c.bring) ? <div className="fact"><div className="ft">What to bring</div><div className="fv">{c.bring}</div></div> : null}
+            {has(c.backup) ? <div className="fact"><div className="ft">If it rains</div><div className="fv">{c.backup}</div></div> : null}
             <div className="fact">
               <div className="ft">The shape of it</div>
               <div className="fv" style={{ marginTop: 10 }}>

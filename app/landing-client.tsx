@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Plate from "./plate";
+import { subscribe } from "./actions";
 import { type Concept } from "./dates";
 
 export default function LandingClient({
@@ -46,7 +47,12 @@ export default function LandingClient({
           <h1 className="home-hero-title">
             We deserve <em>awesome</em> dates.
           </h1>
-          <Link href="/club" className="home-hero-join">Join the club</Link>
+          <p className="home-hero-promise">Three fresh New York date ideas, in your inbox.</p>
+          <form className="email-cap" action={subscribe}>
+            <input type="email" name="email" required placeholder="Your email" aria-label="Email" />
+            <button type="submit" className="btn btn-accent btn-sm">Get them</button>
+          </form>
+          <Link href="/club" className="home-hero-join secondary">or join the club</Link>
         </div>
 
         {hero && (
