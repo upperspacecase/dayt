@@ -22,19 +22,19 @@
 
 /* ---- Color moods (set via [data-mood]) ---- */
 .app[data-mood="cream"]{
-  --bg:#F1EADB;
-  --bg-2:#E9DFCC;
-  --surface:#FBF7EE;
-  --ink:#2A2017;
-  --ink-soft:#6C5E4E;
-  --ink-faint:#9C8C77;
-  --line:rgba(42,32,23,0.15);
-  --line-soft:rgba(42,32,23,0.08);
-  --accent:#A8432B;
-  --accent-ink:#FBF7EE;
-  --gold:#A9802F;
+  --bg:#F5DCE2;              /* soft blush, from the pink set */
+  --bg-2:#EC9FB1;            /* deeper rose for panels */
+  --surface:#FCEEF1;
+  --ink:#2B2329;            /* warm charcoal, from the character */
+  --ink-soft:#6E5E66;
+  --ink-faint:#A892A0;
+  --line:rgba(43,35,41,0.14);
+  --line-soft:rgba(43,35,41,0.07);
+  --accent:#DE4D86;          /* punchy pink — the hero color */
+  --accent-ink:#FFFFFF;
+  --gold:#C24E73;            /* plum-rose — warm secondary */
   --slot-cap:rgba(255,255,255,0.85);
-  --header-bg:rgba(241,234,219,0.82);
+  --header-bg:rgba(245,220,226,0.85);
 }
 .app[data-mood="golden"]{
   --bg:#EAD3AE;
@@ -74,7 +74,7 @@
 /* ---- Reset / base ---- */
 *{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; }
-body{ background:#F1EADB; }
+body{ background:#F5DCE2; }
 .app{
   min-height:100vh;
   background:var(--bg);
@@ -532,4 +532,18 @@ image-slot::part(empty){
 /* reduced motion */
 @media (prefers-reduced-motion:reduce){
   *{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ---- playful 3D brand imagery (nano-banana) ---- */
+.masthead-grid{ display:grid; grid-template-columns:1.05fr 0.95fr; gap:clamp(28px,4vw,64px); align-items:center; }
+.masthead-text{ min-width:0; }
+.masthead-hero{ border-radius:22px; overflow:hidden; aspect-ratio:4/5; box-shadow:0 34px 80px -34px rgba(43,35,41,0.5); background:var(--bg-2); }
+.masthead-hero img{ width:100%; height:100%; object-fit:cover; display:block; }
+.belief-grid{ display:flex; align-items:center; gap:clamp(24px,4vw,56px); justify-content:space-between; flex-wrap:wrap; }
+.belief-grid .belief-text{ flex:1; min-width:280px; }
+.belief-mascot{ width:clamp(180px,24vw,310px); flex:none; }
+.belief-mascot img{ width:100%; height:auto; display:block; border-radius:20px; box-shadow:0 24px 60px -30px rgba(43,35,41,0.45); }
+@media (max-width:860px){
+  .masthead-grid{ grid-template-columns:1fr; }
+  .masthead-hero{ aspect-ratio:16/11; order:-1; }
 }

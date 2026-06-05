@@ -26,34 +26,45 @@ export default function LandingClient({
   return (
     <main className="landing">
       <section className="wrap-wide masthead">
-        <div className="today-line">
-          <span className="kicker">New York</span>
-          <span className="rule" />
-          <span className="kicker">{todayLabel}</span>
-        </div>
+        <div className="masthead-grid">
+          <div className="masthead-text">
+            <div className="today-line">
+              <span className="kicker">New York</span>
+              <span className="rule" />
+              <span className="kicker">{todayLabel}</span>
+            </div>
 
-        {subscribed && (
-          <div className="meta-chip" style={{ marginBottom: 20 }}>
-            <span className="dot" /> You&rsquo;re in. Three fresh New York dates land in your inbox, starting tomorrow.
-          </div>
-        )}
-        {errored && (
-          <div className="meta-chip" style={{ marginBottom: 20 }}>
-            <span className="dot" /> That didn&rsquo;t go through. Mind trying again?
-          </div>
-        )}
+            {subscribed && (
+              <div className="meta-chip" style={{ marginBottom: 20 }}>
+                <span className="dot" /> You&rsquo;re in. Three fresh New York dates land in your inbox, starting tomorrow.
+              </div>
+            )}
+            {errored && (
+              <div className="meta-chip" style={{ marginBottom: 20 }}>
+                <span className="dot" /> That didn&rsquo;t go through. Mind trying again?
+              </div>
+            )}
 
-        <h1 className="hero-title">
-          we all deserve<br /><em>awesome</em> dates
-        </h1>
-        <p className="hero-sub">
-          Dayt Knight helps you discover and build complete date plans &mdash; the place,
-          the flow, the mood, the moment, and the backup &mdash; so you can spend less time
-          figuring it out and more time making it feel personal.
-        </p>
-        <div className="hero-actions">
-          <a className="btn btn-accent" href="#today">See today&rsquo;s ideas</a>
-          <Link className="btn btn-ghost" href="/club">Join the Club</Link>
+            <h1 className="hero-title">
+              we all deserve<br /><em>awesome</em> dates
+            </h1>
+            <p className="hero-sub">
+              Dayt Knight helps you discover and build complete date plans &mdash; the
+              place, the flow, the mood, the moment, and the backup &mdash; so you can spend
+              less time figuring it out and more time making it feel personal.
+            </p>
+            <div className="hero-actions">
+              <a className="btn btn-accent" href="#today">See today&rsquo;s ideas</a>
+              <Link className="btn btn-ghost" href="/club">Join the Club</Link>
+            </div>
+          </div>
+
+          <div className="masthead-hero">
+            <img
+              src="/dayt-hero-a.jpeg"
+              alt="Two characters on a candlelit date, sharing a milkshake under fairy lights"
+            />
+          </div>
         </div>
       </section>
 
@@ -128,17 +139,22 @@ export default function LandingClient({
       </section>
 
       <section className="belief" style={{ background: "var(--bg-2)" }}>
-        <div className="wrap-wide">
-          <p className="line">
-            Dayt Knight helps you plan better dates<br />
-            <span className="soft">without turning romance into admin.</span>
-          </p>
-          <div className="sig">
-            <span
-              className="rule"
-              style={{ width: 44, height: 1, background: "var(--accent)", display: "inline-block" }}
-            />
-            Get inspired by fresh daily ideas, open the full plan, shape it to your person, and make it happen.
+        <div className="wrap-wide belief-grid">
+          <div className="belief-text">
+            <p className="line">
+              Dayt Knight helps you plan better dates<br />
+              <span className="soft">without turning romance into admin.</span>
+            </p>
+            <div className="sig">
+              <span
+                className="rule"
+                style={{ width: 44, height: 1, background: "var(--accent)", display: "inline-block" }}
+              />
+              Get inspired by fresh daily ideas, open the full plan, shape it to your person, and make it happen.
+            </div>
+          </div>
+          <div className="belief-mascot">
+            <img src="/dayt-hero-b.jpeg" alt="The Dayt Knight moon, holding a heart" />
           </div>
         </div>
       </section>
