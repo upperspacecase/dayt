@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import "./design.css";
 import SiteHeader from "./site-header";
@@ -15,7 +16,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
+  const tree = (
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -38,4 +39,6 @@ export default function RootLayout({
       </body>
     </html>
   );
+  // Clerk only wraps the app once its keys are set — site runs untouched until then.
+  return process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? <ClerkProvider>{tree}</ClerkProvider> : tree;
 }
