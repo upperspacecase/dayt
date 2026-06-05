@@ -60,9 +60,10 @@ export default function Club() {
 
   useEffect(() => {
     setMember(localStorage.getItem("dk_club") === "true");
-    try {
-      setUserConcepts(JSON.parse(localStorage.getItem("dk_concepts") || "[]"));
-    } catch {}
+    fetch("/api/concepts")
+      .then((r) => r.json())
+      .then((d) => setUserConcepts(Array.isArray(d) ? d : []))
+      .catch(() => {});
   }, []);
 
   function join() {

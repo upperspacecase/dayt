@@ -11,12 +11,10 @@ export default function ConceptPage() {
   const [c, setC] = useState<Concept | null | undefined>(undefined);
 
   useEffect(() => {
-    try {
-      const list: Concept[] = JSON.parse(localStorage.getItem("dk_concepts") || "[]");
-      setC(list.find((x) => x.id === id) ?? null);
-    } catch {
-      setC(null);
-    }
+    fetch(`/api/concepts/${encodeURIComponent(id)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setC(d ?? null))
+      .catch(() => setC(null));
   }, [id]);
 
   if (c === undefined) {

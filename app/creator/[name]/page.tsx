@@ -14,15 +14,15 @@ export default function CreatorPage() {
   const [list, setList] = useState<Concept[]>([]);
 
   useEffect(() => {
-    let user: Concept[] = [];
-    try {
-      user = JSON.parse(localStorage.getItem("dk_concepts") || "[]");
-    } catch {}
-    setList(
-      [...user, ...CONCEPTS].filter(
-        (c) => (c.creator || "").toLowerCase() === name.toLowerCase(),
-      ),
-    );
+    fetch(`/api/concepts?creator=${encodeURIComponent(name)}`)
+      .then((r) => r.json())
+      .then((user: Concept[]) => {
+        const staticMatches = CONCEPTS.filter(
+          (c) => (c.creator || "").toLowerCase() === name.toLowerCase(),
+        );
+        setList([...(Array.isArray(user) ? user : []), ...staticMatches]);
+      })
+      .catch(() => setList([]));
   }, [name]);
 
   const credit = list.find((c) => c.credit)?.credit;

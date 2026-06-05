@@ -40,7 +40,7 @@ export default function Create() {
 
   const set = (k: string, v: string) => setF((p) => ({ ...p, [k]: v }));
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     const id = "u_" + f.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) + "-" + Date.now().toString(36);
     const arc = f.arc
@@ -59,9 +59,11 @@ export default function Create() {
       creator: f.creator.trim() || "Anonymous",
       credit: f.credit.trim() || undefined,
     };
-    const store = JSON.parse(localStorage.getItem("dk_concepts") || "[]");
-    store.unshift(c);
-    localStorage.setItem("dk_concepts", JSON.stringify(store));
+    await fetch("/api/concepts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(c),
+    });
     setMade(c);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
