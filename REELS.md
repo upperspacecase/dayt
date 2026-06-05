@@ -1,13 +1,13 @@
 # Reels — batch 1
 
-Tay shoots and posts. Follows `BRAND.md`: specific, premium, no emojis, no "cheap", every reel ends on a version of *send this to someone you'd do it with* (the share is the product's core action). Hooks are the first 2 seconds — they decide everything. Keep cuts fast.
+Tay shoots and posts. Follows `BRAND.md`: specific, premium, no emojis, no "cheap", each reel ends on a version of *send this to someone you'd do it with* (the share is the product's core action). Hooks are the first 2 seconds — they decide everything. Keep cuts fast.
 
 ---
 
 ## 1. Golden Hour Tram (the oddly-specific one)
 - **Hook (0–2s):** "The best skyline view in New York, and almost no one takes a date here"
 - **Shots:** POV stepping into the red tram car → doors close → it lifts over the East River → sun on the skyline → two coffees on the rail
-- **Text beats:** "Roosevelt Island tram." / "Go at 7:40, not before." / "Bring two coffees." / "Say nothing for the first 30 seconds. Just watch."
+- **Text beats:** "Roosevelt Island tram." / "Go at 7:40, not before." / "Bring two coffees." / "Say nothing for the first 30 seconds. Watch."
 - **Caption:** "Roosevelt Island tram, golden hour. Send this to someone you'd ride it with."
 
 ## 2. The One Question (most shareable — shows the magic)
@@ -19,8 +19,8 @@ Tay shoots and posts. Follows `BRAND.md`: specific, premium, no emojis, no "chea
 
 ## 3. POV: you didn't have to plan it (for the exhausted planner)
 - **Hook:** "POV: for once, you weren't the one who planned the date"
-- **Shots:** phone buzzes with a text — where, when, booked → cut to them just showing up → a great night unfolds
-- **Text beat:** "Imagine if every Friday looked like this and you did nothing."
+- **Shots:** phone buzzes with a text — where, when, booked → cut to them showing up → a great night unfolds
+- **Text beat:** "Imagine if Friday looked like this and you did nothing."
 - **Caption:** "If you're always the one who plans it… send this to them."
 
 ## 4. The Midnight Ferry (free + cinematic)
