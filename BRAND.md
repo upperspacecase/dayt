@@ -27,6 +27,12 @@ The running rule list for Dayt Knight. **Add a line the moment a rule is set. Re
 - **Concierge / one-offs** are premium, delivered by real creators in the marketplace; their price is set by who's delivering it. Platform takes a cut (Stripe Connect ~70/30).
 - Charge for the transformation, not the tool. Every guarantee names a specific failure + a specific remedy. Real scarcity only (where a human is the constraint); never fake urgency.
 
+## Visual identity (2026-06-05)
+- **Playful glossy 3D, pink.** Based on a 3D-render reference Tay shared (cute, cheeky, romantic-comedy). NOT the earlier editorial-terracotta or the (rejected) blue knight.
+- Palette (cream mood in `design.css`): blush `#F5DCE2` base, deeper rose `#EC9FB1` panels, warm charcoal `#2B2329` ink, punchy pink `#DE4D86` accent, plum-rose `#C24E73` secondary.
+- Imagery = **nano-banana** generations in glossy 3D clay style (Cinema4D look). Shipped: `public/dayt-hero-a.jpeg` (date scene, two characters + milkshake) and `public/dayt-hero-b.jpeg` (crescent-moon mascot hugging a heart — ties the "Knight/night" name). Generate more in the same style for concept cards later.
+
 ## Working style
 - Keep it simple. Don't be over-prescriptive.
+- **I (Claude) over-define and get it wrong (Tay's words, 2026-06-05).** Do the concrete right thing first; hold definitions loose and let them emerge. Don't write rigid frameworks/specs/modules unless asked. When unsure, ship a concrete option and let her react, not a definition.
 - Tay posts the reels; Claude writes them.
